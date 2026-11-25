@@ -10,6 +10,8 @@ import { AcademicsPage } from '@/features/academics/AcademicsPage'
 import { SubjectsCurriculumPage } from '@/features/academics/SubjectsCurriculumPage'
 import { ChangePasswordPage } from '@/features/auth/ChangePasswordPage'
 import { LoginPage } from '@/features/auth/LoginPage'
+import { StudentDetailPage } from '@/features/students/StudentDetailPage'
+import { StudentsListPage } from '@/features/students/StudentsListPage'
 import { UsersRolesPage } from '@/features/users/UsersRolesPage'
 import { PortalLayout } from '@/layouts/PortalLayout'
 import { ErrorPage } from '@/pages/ErrorPage'
@@ -61,7 +63,22 @@ export function App() {
                       </ProtectedRoute>
                     }
                   />
-                  <Route path="/students" element={<ScheduledModulePage titleKey="nav.students" phase={4} />} />
+                  <Route
+                    path="/students"
+                    element={
+                      <ProtectedRoute permission="students.view_student">
+                        <StudentsListPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/students/:id"
+                    element={
+                      <ProtectedRoute permission="students.view_student">
+                        <StudentDetailPage />
+                      </ProtectedRoute>
+                    }
+                  />
                   <Route path="/enrollments" element={<ScheduledModulePage titleKey="nav.enrollments" phase={5} />} />
                   <Route path="/classes" element={<ScheduledModulePage titleKey="nav.classes" phase={6} />} />
                   <Route path="/teachers" element={<ScheduledModulePage titleKey="nav.teachers" phase={7} />} />

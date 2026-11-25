@@ -74,7 +74,7 @@ npm --prefix frontend run build
 | **Phase 1** | Foundation & Vuexy-Styled Bootstrap 5 Shell | Done | Django split settings, SQLite WAL, `apps.core`, `apps.system_settings`, `apps.auditlogs`, `/api/v1/health/`, `/api/v1/system/bootstrap/`, Vertical/Horizontal layouts, Light/Dark theme, EN/KM i18n, Axios + TanStack Query + RHF/Zod, reusable UI primitives |
 | **Phase 2** | Authentication, Users, Roles & Permissions | Done | `apps.accounts` JWT login/logout/refresh cookie rotation + token blacklist, `/auth/me/`, `/auth/me/permissions/`, `/auth/password/change/`, Users & Django Group Roles CRUD, Permission Matrix UI, 10 seeded standard roles, permission-driven navigation & `<ProtectedRoute>` / `<PermissionGuard>` |
 | **Phase 3** | Academic Configuration & Curriculum | Done | `apps.academics` (`AcademicYear`, `Semester`, `Degree`, `Major`, `YearLevel` with single `is_current` constraints, date-bound validation, `PROTECT` delete handling) & `apps.subjects` (`Subject`, `Curriculum`, `CurriculumSubject`), reusable `AcademicFilterBar`, tabbed Academics & Subjects/Curriculum UI |
-| **Phase 4** | Student Management | Planned | Permanent `Student` profile, configurable Student ID generator, guardians, documents, status history, print profile |
+| **Phase 4** | Student Management | Done | `apps.students` permanent `Student` identity, configurable transactional Student ID generator (`StudentCodeSequence`), duplicate identity detection, guardians, education history, secure document upload/download, 7-state `StudentStatusHistory`, UTF-8 CSV export, printable Student Detail page, object-level Student role scoping |
 | **Phase 5** | Enrollment Management | Planned | Academic enrollment, re-enrollment, promotion, major/degree change, enrollment history |
 | **Phase 6** | Class Management | Planned | Classrooms, `ClassSection`, 7-tab Class Detail page, context-validated roster assignment & transfers |
 | **Phase 7** | Teaching & Schedule Management | Planned | Teachers, teaching assignments, weekly schedules, teacher/room/class conflict detection |
@@ -102,3 +102,8 @@ npm --prefix frontend run build
 - Complete `apps.academics` APIs (`/api/v1/academic-years/`, `/semesters/`, `/degrees/`, `/majors/`, `/year-levels/`) with atomic `set-current` actions, single-current partial unique constraints, semester date-range enforcement, and `seed_academic_defaults` (Year 1–4, Higher Diploma, Bachelor's Degree).
 - Complete `apps.subjects` APIs (`/api/v1/subjects/`, `/curricula/`, `/curriculum-subjects/`) enforcing degree–major alignment and non-circular prerequisites.
 - Tabbed Academics Configuration UI, Subjects & Curriculum Builder UI, and reusable cascading `AcademicFilterBar`.
+
+#### Phase 4 — Student Management
+- Permanent `Student` identity model separated from enrollments, supporting all 7 statuses (`applicant`, `active`, `suspended`, `leave`, `transferred`, `graduated`, `withdrawn`) and `draft`/`completed` registration states.
+- Configurable Student ID generator driven by `SystemSetting` (`student_id.format`) with transactional `StudentCodeSequence`, duplicate identity checking, non-destructive soft-delete archiving, safe multipart photo/document uploads with permission-checked downloads, and UTF-8-BOM CSV export.
+- Student Directory with search/filters/export and a 5-tab Printable Student Detail page (`Overview`, `Guardians`, `Education History`, `Documents`, `Status History`).

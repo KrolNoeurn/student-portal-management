@@ -58,6 +58,32 @@ ACADEMICS_MANAGE_PERMS = [
     "subjects.delete_curriculumsubject",
 ]
 
+STUDENTS_VIEW_PERMS = [
+    "students.view_student",
+    "students.view_studentguardian",
+    "students.view_studenteducationhistory",
+    "students.view_studentdocument",
+]
+
+STUDENTS_MANAGE_PERMS = [
+    *STUDENTS_VIEW_PERMS,
+    "students.add_student",
+    "students.change_student",
+    "students.delete_student",
+    "students.archive_student",
+    "students.export_student",
+    "students.print_student_profile",
+    "students.add_studentguardian",
+    "students.change_studentguardian",
+    "students.delete_studentguardian",
+    "students.add_studenteducationhistory",
+    "students.change_studenteducationhistory",
+    "students.delete_studenteducationhistory",
+    "students.add_studentdocument",
+    "students.change_studentdocument",
+    "students.delete_studentdocument",
+]
+
 # Permissions assigned per role from apps currently installed;
 # future phases extend this mapping cleanly and re-run seed_roles_permissions.
 ROLE_PERMISSION_MAP: dict[str, list[str] | str] = {
@@ -80,16 +106,19 @@ ROLE_PERMISSION_MAP: dict[str, list[str] | str] = {
         "auditlogs.view_auditlog",
         "auditlogs.view_audit_logs",
         *ACADEMICS_VIEW_PERMS,
+        *STUDENTS_VIEW_PERMS,
     ],
     "Academic Administrator": [
         "accounts.view_user",
         "auth.view_group",
         "system_settings.view_systemsetting",
         *ACADEMICS_MANAGE_PERMS,
+        *STUDENTS_MANAGE_PERMS,
     ],
     "Registrar": [
         "accounts.view_user",
         *ACADEMICS_VIEW_PERMS,
+        *STUDENTS_MANAGE_PERMS,
     ],
     "Academic Officer": [
         *ACADEMICS_VIEW_PERMS,
@@ -102,17 +131,29 @@ ROLE_PERMISSION_MAP: dict[str, list[str] | str] = {
         "subjects.add_curriculumsubject",
         "subjects.change_curriculumsubject",
         "subjects.delete_curriculumsubject",
+        *STUDENTS_VIEW_PERMS,
+        "students.add_student",
+        "students.change_student",
+        "students.print_student_profile",
     ],
     "Department Head": [
         *ACADEMICS_VIEW_PERMS,
         "subjects.add_curriculumsubject",
         "subjects.change_curriculumsubject",
         "subjects.delete_curriculumsubject",
+        *STUDENTS_VIEW_PERMS,
     ],
-    "Instructor": [*ACADEMICS_VIEW_PERMS],
-    "Attendance Officer": [*ACADEMICS_VIEW_PERMS],
-    "Student Affairs": [*ACADEMICS_VIEW_PERMS],
-    "Student": [*ACADEMICS_VIEW_PERMS],
+    "Instructor": [*ACADEMICS_VIEW_PERMS, *STUDENTS_VIEW_PERMS],
+    "Attendance Officer": [*ACADEMICS_VIEW_PERMS, *STUDENTS_VIEW_PERMS],
+    "Student Affairs": [
+        *ACADEMICS_VIEW_PERMS,
+        *STUDENTS_VIEW_PERMS,
+        "students.change_student",
+        "students.add_studentdocument",
+        "students.delete_studentdocument",
+        "students.print_student_profile",
+    ],
+    "Student": [*ACADEMICS_VIEW_PERMS, *STUDENTS_VIEW_PERMS, "students.print_student_profile"],
 }
 
 PROTECTED_ROLES = {"Super Administrator"}

@@ -528,3 +528,22 @@ h1, h2, h3, h4, h5, h6,
     padding: 1rem;
   }
 }
+
+@media print {
+  .vx-sidebar,
+  .vx-navbar-wrapper,
+  .vx-horizontal-header,
+  .vx-footer {
+    display: none !important;
+  }
+
+  .vx-main-vertical,
+  .vx-main-vertical.sidebar-collapsed {
+    margin-left: 0 !important;
+  }
+
+  .card {
+    box-shadow: none !important;
+    border: 1px solid #dee2e6 !important;
+  }
+}
