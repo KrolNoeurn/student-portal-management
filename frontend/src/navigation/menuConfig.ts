@@ -104,8 +104,11 @@ export const PORTAL_NAVIGATION: NavSection[] = [
         path: '/attendance',
         i18nKey: 'nav.attendance',
         icon: ClipboardCheck,
-        permission: 'attendance.view_attendancesession',
-        phase: 8,
+        anyOf: [
+          'attendance.view_attendancesession',
+          'attendance.view_attendancerecord',
+          'attendance.take_attendance',
+        ],
       },
       {
         id: 'examinations',

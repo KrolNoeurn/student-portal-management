@@ -78,7 +78,7 @@ npm --prefix frontend run build
 | **Phase 5** | Enrollment Management | Done | `apps.enrollments` (`Enrollment`, `EnrollmentSequence`, `EnrollmentHistory`), transactional registration # generator, single-active-per-year constraint, Promote/Re-Enroll progression chain (`previous_enrollment`), Major/Degree Change & Transfer workflows, Enrollments UI & live Student Detail Enrollments tab |
 | **Phase 6** | Class Management | Done | `apps.classes` (`Classroom`, `ClassSection`, `ClassSubject`, `ClassMembership`, `ClassTransferHistory`), context-matched roster assignment, capacity enforcement & auto `open`/`full` sync, class transfer service, 7-tab Class Detail page (`Overview`, `Students`, `Subjects`, `Teachers`, `Schedule`, `Attendance`, `Reports`) |
 | **Phase 7** | Teaching & Schedule Management | Done | `apps.teachers` (`Teacher`, `TeachingAssignment`, `ClassSchedule`), real-time conflict detection engine (Teacher, Classroom, and ClassSection overlap prevention), weekly timetable UI with live pre-save conflict alerts, live `Teachers` & `Schedule` tabs wired into Class Detail |
-| **Phase 8** | Attendance Management | Planned | Cascading bulk attendance workflow, corrections, monthly stats, absence warnings, Excel export |
+| **Phase 8** | Attendance Management | Done | `apps.attendance` (`AttendanceSession`, `AttendanceRecord`, `AttendanceCorrectionLog`), transactional bulk attendance marking with all 5 statuses, duplicate prevention, audited corrections, monthly attendance % & absence warnings, UTF-8 CSV/Excel export, cascading Attendance UI & live Class Detail `Attendance` tab |
 | **Phase 9** | Examination & Assessment | Planned | Assessments, score entry grid, grading scales, GPA & academic progress |
 | **Phase 10** | Dashboards, Reports, Notifications & Settings | Planned | Role-scoped real-data dashboards, filterable reports (CSV/Excel/PDF/Print), notifications, settings & audit log viewer |
 | **Phase 11** | Testing, Security & Performance Hardening | Planned | Full RBAC/IDOR security audit, N+1 query optimization, cross-layout/i18n QA |
@@ -122,3 +122,8 @@ npm --prefix frontend run build
 - `apps.teachers` managing `Teacher` profiles (auto-code `TCH-XXXX`), `TeachingAssignment` (auto-linking subjects to `ClassSubject`), and `ClassSchedule`.
 - Full conflict detection engine (`detect_schedule_conflicts` + `POST /api/v1/schedules/check-conflicts/`) preventing overlapping schedules for the same **Teacher**, **Classroom**, or **ClassSection**, while permitting back-to-back slots.
 - 3-tab Teachers, Assignments & Weekly Timetable UI with live conflict alerts, plus live `Teachers` and `Schedule` tabs integrated into Class Detail.
+
+#### Phase 8 — Attendance Management
+- `apps.attendance` (`AttendanceSession`, `AttendanceRecord`, `AttendanceCorrectionLog`) supporting all 5 statuses (`Present`, `Absent`, `Late`, `Excused`, `Permission`) with database-enforced duplicate session/record prevention.
+- Transactional bulk attendance service (`POST /api/v1/attendance/bulk-mark/`), mandatory-reason corrections, monthly attendance percentage & configurable absence warning threshold (`SystemSetting`), Instructor teaching-assignment authorization, Student self-scoping, and UTF-8 CSV/Excel export.
+- 3-tab Attendance UI (`Take Attendance` cascading workflow, `Attendance History & Corrections`, `Monthly Summary & Warnings`) plus live `Attendance` tab wired into Class Detail.

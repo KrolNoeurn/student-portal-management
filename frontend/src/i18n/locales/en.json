@@ -3,7 +3,7 @@
     "shortName": "SAMS",
     "fullName": "Student Portal & Academic Management System",
     "footer": "Student Portal & Academic Management System",
-    "phaseBadge": "Phase 7 · Teaching & Schedules"
+    "phaseBadge": "Phase 8 · Attendance Management"
   },
   "nav": {
     "sections": {
@@ -341,6 +341,44 @@
     "daySun": "Sunday",
     "conflictDetected": "Schedule conflict detected — cannot save overlapping slot:",
     "scheduleSaved": "Class schedule slot saved with zero conflicts."
+  },
+  "attendance": {
+    "pageTitle": "Attendance Management",
+    "pageSubtitle": "Take bulk class attendance, track corrections, review monthly summaries, and monitor absence warnings.",
+    "tabTake": "Take Attendance",
+    "tabHistory": "Attendance History",
+    "tabSummary": "Monthly Summary & Warnings",
+    "print": "Print",
+    "exportExcel": "Export CSV / Excel",
+    "exportStarted": "Attendance report downloaded.",
+    "selectSessionTitle": "Select Academic Context & Session",
+    "sessionDate": "Date",
+    "slot": "Slot",
+    "topic": "Lesson Topic",
+    "topicPlaceholder": "Optional topic covered...",
+    "sessionStats": "Saved Session Statistics",
+    "rosterSheet": "Enrolled Class Roster",
+    "markAllPresent": "All Present",
+    "markAllAbsent": "All Absent",
+    "allowUpdateExisting": "Allow updating existing session",
+    "saveAttendance": "Save Attendance",
+    "noEnrolledStudents": "No active enrolled students are assigned to this class yet.",
+    "status_present": "Present",
+    "status_absent": "Absent",
+    "status_late": "Late",
+    "status_excused": "Excused",
+    "status_permission": "Permission",
+    "breakdown": "Summary",
+    "inspectRecords": "View / Correct",
+    "correctRecord": "Correct Attendance Record",
+    "warningsOnly": "Absence Warnings Only",
+    "warnings": "Warnings",
+    "totalSessions": "Sessions",
+    "rate": "Attendance %",
+    "warningBadge": "Attendance Warning",
+    "goodStanding": "Good Standing",
+    "savedSuccess": "Attendance saved cleanly.",
+    "correctedSuccess": "Attendance record corrected and logged."
   },
   "common": {
     "status": "Status",

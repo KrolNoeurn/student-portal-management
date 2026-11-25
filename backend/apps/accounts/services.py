@@ -141,6 +141,22 @@ TEACHERS_MANAGE_PERMS = [
     "teachers.delete_classschedule",
 ]
 
+ATTENDANCE_VIEW_PERMS = [
+    "attendance.view_attendancesession",
+    "attendance.view_attendancerecord",
+]
+
+ATTENDANCE_MANAGE_PERMS = [
+    *ATTENDANCE_VIEW_PERMS,
+    "attendance.add_attendancesession",
+    "attendance.change_attendancesession",
+    "attendance.add_attendancerecord",
+    "attendance.change_attendancerecord",
+    "attendance.take_attendance",
+    "attendance.correct_attendance",
+    "attendance.export_attendance",
+]
+
 # Permissions assigned per role from apps currently installed;
 # future phases extend this mapping cleanly and re-run seed_roles_permissions.
 ROLE_PERMISSION_MAP: dict[str, list[str] | str] = {
@@ -167,6 +183,7 @@ ROLE_PERMISSION_MAP: dict[str, list[str] | str] = {
         *ENROLLMENTS_VIEW_PERMS,
         *CLASSES_VIEW_PERMS,
         *TEACHERS_VIEW_PERMS,
+        *ATTENDANCE_VIEW_PERMS,
     ],
     "Academic Administrator": [
         "accounts.view_user",
@@ -177,6 +194,7 @@ ROLE_PERMISSION_MAP: dict[str, list[str] | str] = {
         *ENROLLMENTS_MANAGE_PERMS,
         *CLASSES_MANAGE_PERMS,
         *TEACHERS_MANAGE_PERMS,
+        *ATTENDANCE_MANAGE_PERMS,
     ],
     "Registrar": [
         "accounts.view_user",
@@ -189,6 +207,7 @@ ROLE_PERMISSION_MAP: dict[str, list[str] | str] = {
         "classes.add_classmembership",
         "classes.change_classmembership",
         *TEACHERS_VIEW_PERMS,
+        *ATTENDANCE_VIEW_PERMS,
     ],
     "Academic Officer": [
         *ACADEMICS_VIEW_PERMS,
@@ -208,6 +227,8 @@ ROLE_PERMISSION_MAP: dict[str, list[str] | str] = {
         *ENROLLMENTS_MANAGE_PERMS,
         *CLASSES_MANAGE_PERMS,
         *TEACHERS_MANAGE_PERMS,
+        *ATTENDANCE_VIEW_PERMS,
+        "attendance.export_attendance",
     ],
     "Department Head": [
         *ACADEMICS_VIEW_PERMS,
@@ -218,6 +239,8 @@ ROLE_PERMISSION_MAP: dict[str, list[str] | str] = {
         *ENROLLMENTS_VIEW_PERMS,
         *CLASSES_MANAGE_PERMS,
         *TEACHERS_MANAGE_PERMS,
+        *ATTENDANCE_VIEW_PERMS,
+        "attendance.export_attendance",
     ],
     "Instructor": [
         *ACADEMICS_VIEW_PERMS,
@@ -225,6 +248,8 @@ ROLE_PERMISSION_MAP: dict[str, list[str] | str] = {
         *ENROLLMENTS_VIEW_PERMS,
         *CLASSES_VIEW_PERMS,
         *TEACHERS_VIEW_PERMS,
+        *ATTENDANCE_VIEW_PERMS,
+        "attendance.take_attendance",
     ],
     "Attendance Officer": [
         *ACADEMICS_VIEW_PERMS,
@@ -232,6 +257,7 @@ ROLE_PERMISSION_MAP: dict[str, list[str] | str] = {
         *ENROLLMENTS_VIEW_PERMS,
         *CLASSES_VIEW_PERMS,
         *TEACHERS_VIEW_PERMS,
+        *ATTENDANCE_MANAGE_PERMS,
     ],
     "Student Affairs": [
         *ACADEMICS_VIEW_PERMS,
@@ -243,6 +269,8 @@ ROLE_PERMISSION_MAP: dict[str, list[str] | str] = {
         *ENROLLMENTS_VIEW_PERMS,
         *CLASSES_VIEW_PERMS,
         *TEACHERS_VIEW_PERMS,
+        *ATTENDANCE_VIEW_PERMS,
+        "attendance.export_attendance",
     ],
     "Student": [
         *ACADEMICS_VIEW_PERMS,
@@ -252,6 +280,7 @@ ROLE_PERMISSION_MAP: dict[str, list[str] | str] = {
         *CLASSES_VIEW_PERMS,
         "teachers.view_teachingassignment",
         "teachers.view_classschedule",
+        *ATTENDANCE_VIEW_PERMS,
     ],
 }
 

@@ -8,6 +8,7 @@ import { ThemeLayoutProvider } from '@/contexts/ThemeLayoutContext'
 import { ToastProvider } from '@/contexts/ToastContext'
 import { AcademicsPage } from '@/features/academics/AcademicsPage'
 import { SubjectsCurriculumPage } from '@/features/academics/SubjectsCurriculumPage'
+import { AttendancePage } from '@/features/attendance/AttendancePage'
 import { ChangePasswordPage } from '@/features/auth/ChangePasswordPage'
 import { LoginPage } from '@/features/auth/LoginPage'
 import { ClassDetailPage } from '@/features/classes/ClassDetailPage'
@@ -115,7 +116,20 @@ export function App() {
                       </ProtectedRoute>
                     }
                   />
-                  <Route path="/attendance" element={<ScheduledModulePage titleKey="nav.attendance" phase={8} />} />
+                  <Route
+                    path="/attendance"
+                    element={
+                      <ProtectedRoute
+                        anyOf={[
+                          'attendance.view_attendancesession',
+                          'attendance.view_attendancerecord',
+                          'attendance.take_attendance',
+                        ]}
+                      >
+                        <AttendancePage />
+                      </ProtectedRoute>
+                    }
+                  />
                   <Route path="/examinations" element={<ScheduledModulePage titleKey="nav.examinations" phase={9} />} />
                   <Route path="/reports" element={<ScheduledModulePage titleKey="nav.reports" phase={10} />} />
                   <Route path="/settings" element={<ScheduledModulePage titleKey="nav.settings" phase={10} />} />

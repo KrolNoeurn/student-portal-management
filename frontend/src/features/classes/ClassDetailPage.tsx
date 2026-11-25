@@ -28,6 +28,7 @@ import { StatCard } from '@/components/ui/StatCard'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { useToast } from '@/contexts/ToastContext'
 import { fetchSubjects } from '@/features/academics/academicsApi'
+import { fetchAttendanceSessions } from '@/features/attendance/attendanceApi'
 import { classStatusTone } from '@/features/classes/ClassesPage'
 import { fetchSchedules, fetchTeachingAssignments } from '@/features/teachers/teachersApi'
 import {
@@ -109,6 +110,11 @@ export function ClassDetailPage() {
   const classScheduleQuery = useQuery({
     queryKey: ['class-schedules', id],
     queryFn: () => fetchSchedules({ class_section: id! }),
+    enabled: Boolean(id),
+  })
+  const classAttendanceQuery = useQuery({
+    queryKey: ['class-attendance', id],
+    queryFn: () => fetchAttendanceSessions({ class_section: id! }),
     enabled: Boolean(id),
   })
 
@@ -639,13 +645,50 @@ export function ClassDetailPage() {
         </div>
       )}
 
-      {/* 6. Attendance Tab (Connected in Phase 8) */}
+      {/* 6. Attendance Tab (Live Attendance Sessions) */}
       {tab === 'attendance' && (
         <div className="card">
-          <EmptyState
-            title={t('classes.tabAttendance')}
-            description={t('classes.phase8Ready')}
-          />
+          <div className="card-header d-flex align-items-center justify-content-between">
+            <h6 className="mb-0">{t('classes.tabAttendance')}</h6>
+            <Link to="/attendance" className="btn btn-sm btn-label-primary">
+              {t('nav.attendance')}
+            </Link>
+          </div>
+          {(classAttendanceQuery.data?.results || []).length === 0 ? (
+            <EmptyState title={t('common.noData')} />
+          ) : (
+            <div className="table-responsive">
+              <table className="table align-middle">
+                <thead>
+                  <tr>
+                    <th>{t('attendance.sessionDate')}</th>
+                    <th>{t('subjects.subject')}</th>
+                    <th>{t('attendance.breakdown')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(classAttendanceQuery.data?.results || []).map((s) => (
+                    <tr key={s.id}>
+                      <td className="fw-medium">{s.session_date} (#{s.session_slot})</td>
+                      <td>
+                        <code className="me-2">{s.subject_code}</code>
+                        {s.subject_name_en}
+                      </td>
+                      <td>
+                        <div className="d-flex flex-wrap gap-1">
+                          <StatusBadge label={`P:${s.present_count}`} tone="success" />
+                          <StatusBadge label={`L:${s.late_count}`} tone="warning" />
+                          <StatusBadge label={`A:${s.absent_count}`} tone="danger" />
+                          <StatusBadge label={`E:${s.excused_count}`} tone="info" />
+                          <StatusBadge label={`Pm:${s.permission_count}`} tone="primary" />
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
 
