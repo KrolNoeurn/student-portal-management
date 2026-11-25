@@ -29,6 +29,17 @@ student-portal/
 
 ## Quick Start (Development)
 
+### Start Both Servers (One Command)
+
+```bash
+./start-dev.sh
+
+# First-time setup (runs migrations & idempotent seeders before starting both servers)
+./start-dev.sh --migrate
+```
+
+Press `Ctrl+C` to cleanly stop both the Django API (`http://127.0.0.1:8000`) and the React/Vite frontend (`http://localhost:5173`).
+
 ### 1. Backend (Django REST API)
 
 ```bash
