@@ -207,6 +207,8 @@ ROLE_PERMISSION_MAP: dict[str, list[str] | str] = {
         "system_settings.manage_backups",
         "auditlogs.view_auditlog",
         "auditlogs.view_audit_logs",
+        "reports.view_admin_dashboard",
+        "reports.export_reports",
         *ACADEMICS_VIEW_PERMS,
         *STUDENTS_VIEW_PERMS,
         *ENROLLMENTS_VIEW_PERMS,
@@ -219,6 +221,9 @@ ROLE_PERMISSION_MAP: dict[str, list[str] | str] = {
         "accounts.view_user",
         "auth.view_group",
         "system_settings.view_systemsetting",
+        "reports.view_admin_dashboard",
+        "reports.view_academic_dashboard",
+        "reports.export_reports",
         *ACADEMICS_MANAGE_PERMS,
         *STUDENTS_MANAGE_PERMS,
         *ENROLLMENTS_MANAGE_PERMS,
@@ -240,6 +245,8 @@ ROLE_PERMISSION_MAP: dict[str, list[str] | str] = {
         *TEACHERS_VIEW_PERMS,
         *ATTENDANCE_VIEW_PERMS,
         *EXAMS_VIEW_PERMS,
+        "reports.view_academic_dashboard",
+        "reports.export_reports",
     ],
     "Academic Officer": [
         *ACADEMICS_VIEW_PERMS,
@@ -262,6 +269,8 @@ ROLE_PERMISSION_MAP: dict[str, list[str] | str] = {
         *ATTENDANCE_VIEW_PERMS,
         "attendance.export_attendance",
         *EXAMS_MANAGE_PERMS,
+        "reports.view_academic_dashboard",
+        "reports.export_reports",
     ],
     "Department Head": [
         *ACADEMICS_VIEW_PERMS,
@@ -276,6 +285,8 @@ ROLE_PERMISSION_MAP: dict[str, list[str] | str] = {
         "attendance.export_attendance",
         *EXAMS_INSTRUCTOR_PERMS,
         "examinations.publish_grades",
+        "reports.view_academic_dashboard",
+        "reports.export_reports",
     ],
     "Instructor": [
         *ACADEMICS_VIEW_PERMS,
@@ -286,6 +297,7 @@ ROLE_PERMISSION_MAP: dict[str, list[str] | str] = {
         *ATTENDANCE_VIEW_PERMS,
         "attendance.take_attendance",
         *EXAMS_INSTRUCTOR_PERMS,
+        "reports.view_instructor_dashboard",
     ],
     "Attendance Officer": [
         *ACADEMICS_VIEW_PERMS,
@@ -295,6 +307,7 @@ ROLE_PERMISSION_MAP: dict[str, list[str] | str] = {
         *TEACHERS_VIEW_PERMS,
         *ATTENDANCE_MANAGE_PERMS,
         *EXAMS_VIEW_PERMS,
+        "reports.export_reports",
     ],
     "Student Affairs": [
         *ACADEMICS_VIEW_PERMS,
@@ -320,6 +333,7 @@ ROLE_PERMISSION_MAP: dict[str, list[str] | str] = {
         "teachers.view_classschedule",
         *ATTENDANCE_VIEW_PERMS,
         *EXAMS_VIEW_PERMS,
+        "reports.view_student_dashboard",
     ],
 }
 

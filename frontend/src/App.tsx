@@ -13,16 +13,17 @@ import { ChangePasswordPage } from '@/features/auth/ChangePasswordPage'
 import { LoginPage } from '@/features/auth/LoginPage'
 import { ClassDetailPage } from '@/features/classes/ClassDetailPage'
 import { ClassesPage } from '@/features/classes/ClassesPage'
+import { DashboardPage } from '@/features/dashboard/DashboardPage'
 import { EnrollmentsPage } from '@/features/enrollments/EnrollmentsPage'
 import { ExaminationsPage } from '@/features/examinations/ExaminationsPage'
+import { ReportsPage } from '@/features/reports/ReportsPage'
+import { SettingsPage } from '@/features/settings/SettingsPage'
 import { StudentDetailPage } from '@/features/students/StudentDetailPage'
 import { StudentsListPage } from '@/features/students/StudentsListPage'
 import { TeachersSchedulesPage } from '@/features/teachers/TeachersSchedulesPage'
 import { UsersRolesPage } from '@/features/users/UsersRolesPage'
 import { PortalLayout } from '@/layouts/PortalLayout'
 import { ErrorPage } from '@/pages/ErrorPage'
-import { FoundationOverviewPage } from '@/pages/FoundationOverviewPage'
-import { ScheduledModulePage } from '@/pages/ScheduledModulePage'
 
 export function App() {
   return (
@@ -43,7 +44,7 @@ export function App() {
                     </ProtectedRoute>
                   }
                 >
-                  <Route path="/" element={<FoundationOverviewPage />} />
+                  <Route path="/" element={<DashboardPage />} />
                   <Route path="/change-password" element={<ChangePasswordPage />} />
                   <Route
                     path="/users"
@@ -139,8 +140,29 @@ export function App() {
                       </ProtectedRoute>
                     }
                   />
-                  <Route path="/reports" element={<ScheduledModulePage titleKey="nav.reports" phase={10} />} />
-                  <Route path="/settings" element={<ScheduledModulePage titleKey="nav.settings" phase={10} />} />
+                  <Route
+                    path="/reports"
+                    element={
+                      <ProtectedRoute permission="reports.export_reports">
+                        <ReportsPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/settings"
+                    element={
+                      <ProtectedRoute
+                        anyOf={[
+                          'system_settings.manage_system_settings',
+                          'system_settings.view_systemsetting',
+                          'system_settings.manage_backups',
+                          'auditlogs.view_audit_logs',
+                        ]}
+                      >
+                        <SettingsPage />
+                      </ProtectedRoute>
+                    }
+                  />
                 </Route>
 
                 <Route path="*" element={<ErrorPage code={404} />} />

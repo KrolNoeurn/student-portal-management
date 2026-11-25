@@ -81,7 +81,7 @@ npm --prefix frontend run build
 | **Phase 7** | Teaching & Schedule Management | Done | `apps.teachers` (`Teacher`, `TeachingAssignment`, `ClassSchedule`), real-time conflict detection engine (Teacher, Classroom, and ClassSection overlap prevention), weekly timetable UI with live pre-save conflict alerts, live `Teachers` & `Schedule` tabs wired into Class Detail |
 | **Phase 8** | Attendance Management | Done | `apps.attendance` (`AttendanceSession`, `AttendanceRecord`, `AttendanceCorrectionLog`), transactional bulk attendance marking with all 5 statuses, duplicate prevention, audited corrections, monthly attendance % & absence warnings, UTF-8 CSV/Excel export, cascading Attendance UI & live Class Detail `Attendance` tab |
 | **Phase 9** | Examination & Assessment | Done | `apps.examinations` (`AssessmentType`, `GradingScale`, `Assessment`, `StudentScore`, `SubjectGrade`), seeded 4.00 grading scale & assessment types, transactional score grid, weighted grade & cumulative GPA calculation, permission-gated grade publication, printable academic transcript |
-| **Phase 10** | Dashboards, Reports, Notifications & Settings | Planned | Role-scoped real-data dashboards, filterable reports (CSV/Excel/PDF/Print), notifications, settings & audit log viewer |
+| **Phase 10** | Dashboards, Reports, Notifications & Settings | Done | `apps.reports` (4 role-scoped live dashboards + 8 filterable institutional reports with CSV/Excel export & print), `apps.notifications` (recipient-scoped live navbar notifications), `apps.system_settings` (`/settings/`, `/backups/`, `backup_database` CLI), `apps.auditlogs` (`/audit-logs/`), live Dashboard, Reports & 3-tab System Settings UI |
 | **Phase 11** | Testing, Security & Performance Hardening | Planned | Full RBAC/IDOR security audit, N+1 query optimization, cross-layout/i18n QA |
 | **Phase 12** | Deployment, Backup & Migration Strategy | Planned | Production settings, safe SQLite online backup/restore runbook, PostgreSQL migration guide |
 
@@ -133,3 +133,9 @@ npm --prefix frontend run build
 - `apps.examinations` (`AssessmentType`, `GradingScale`, `Assessment`, `StudentScore`, `SubjectGrade`) with `seed_examination_defaults` (5 assessment types and 4.00 A–F grading scale).
 - Bulk score entry with `0..max_score` validation, weighted percentage & GPA calculation (`POST /api/v1/grades/calculate/`), permission-gated grade publication (`examinations.publish_grades`), and student-scoped printable transcripts (`GET /api/v1/grades/transcript/`).
 - 4-tab Examinations UI (`Assessments & Scores` grid, `Grades & Publication`, `Transcript & GPA`, and `Grading Scale & Types`).
+
+#### Phase 10 — Dashboards, Reports, Notifications, System Settings & Audit Logs
+- `apps.reports` serving real-data, role-scoped dashboards (`GET /api/v1/dashboard/` for Admin, Academic Officer, Instructor, and Student personas) and 8 filterable institutional reports (`GET /api/v1/reports/<report_type>/` with `?export=csv` UTF-8-BOM CSV/Excel download and print support).
+- `apps.notifications` providing strictly recipient-scoped bilingual notifications (`GET /api/v1/notifications/`, `unread-count/`, `mark-read/`, `mark-all-read/`) wired directly into the live navbar notification bell.
+- `apps.system_settings` & `apps.auditlogs` operational endpoints (`/api/v1/settings/`, `/api/v1/backups/`, `/api/v1/backups/create-backup/`, `/api/v1/audit-logs/`) plus `python manage.py backup_database` CLI for safe online SQLite snapshots with SHA-256 verification.
+- Real-data `DashboardPage` (replacing the Phase 1 placeholder on `/`), filterable `ReportsPage`, and 3-tab `SettingsPage` (`System Configuration`, `Database Backups`, `Audit Logs`) with full EN/KM localization.

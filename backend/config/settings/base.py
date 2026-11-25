@@ -44,6 +44,8 @@ LOCAL_APPS = [
     "apps.teachers.apps.TeachersConfig",
     "apps.attendance.apps.AttendanceConfig",
     "apps.examinations.apps.ExaminationsConfig",
+    "apps.reports.apps.ReportsConfig",
+    "apps.notifications.apps.NotificationsConfig",
     "apps.system_settings.apps.SystemSettingsConfig",
     "apps.auditlogs.apps.AuditLogsConfig",
 ]

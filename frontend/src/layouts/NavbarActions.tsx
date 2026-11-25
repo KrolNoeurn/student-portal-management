@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   Bell,
+  CheckCheck,
   Columns2,
   Globe,
   KeyRound,
@@ -15,6 +17,13 @@ import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/auth/AuthContext'
 import { useThemeLayout } from '@/contexts/ThemeLayoutContext'
 import { useToast } from '@/contexts/ToastContext'
+import {
+  fetchNotifications,
+  fetchUnreadNotificationCount,
+  markAllNotificationsRead,
+  markNotificationRead,
+  type NotificationItem,
+} from '@/features/notifications/notificationsApi'
 
 export function NavbarActions() {
   const { t, i18n } = useTranslation()
@@ -22,9 +31,26 @@ export function NavbarActions() {
   const { layout, toggleLayout, theme, toggleTheme } = useThemeLayout()
   const { showToast } = useToast()
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const [openMenu, setOpenMenu] = useState<'lang' | 'notif' | 'user' | null>(null)
 
   const currentLang = i18n.language === 'km' ? 'km' : 'en'
+  const isKm = currentLang === 'km'
+
+  const unreadQuery = useQuery({
+    queryKey: ['notifications-unread-count'],
+    queryFn: fetchUnreadNotificationCount,
+    enabled: Boolean(user),
+    refetchInterval: 30000,
+  })
+
+  const notificationsQuery = useQuery({
+    queryKey: ['notifications-list'],
+    queryFn: () => fetchNotifications({ page_size: 10 }),
+    enabled: openMenu === 'notif' && Boolean(user),
+  })
+
+  const unreadCount = unreadQuery.data?.unread_count ?? 0
 
   const toggleMenu = (menu: 'lang' | 'notif' | 'user') => {
     setOpenMenu((prev) => (prev === menu ? null : menu))
@@ -53,6 +79,25 @@ export function NavbarActions() {
     await logout()
     showToast(t('auth.signedOut'), 'info')
     navigate('/login', { replace: true })
+  }
+
+  const handleNotificationClick = async (item: NotificationItem) => {
+    if (!item.is_read) {
+      await markNotificationRead(item.id)
+      queryClient.invalidateQueries({ queryKey: ['notifications-unread-count'] })
+      queryClient.invalidateQueries({ queryKey: ['notifications-list'] })
+    }
+    if (item.link_url) {
+      setOpenMenu(null)
+      navigate(item.link_url)
+    }
+  }
+
+  const handleMarkAllRead = async () => {
+    await markAllNotificationsRead()
+    queryClient.invalidateQueries({ queryKey: ['notifications-unread-count'] })
+    queryClient.invalidateQueries({ queryKey: ['notifications-list'] })
+    showToast(t('notifications.allMarkedRead'), 'info')
   }
 
   const initials = (user?.full_name || user?.username || 'U')
@@ -128,29 +173,86 @@ export function NavbarActions() {
         )}
       </div>
 
-      {/* Notifications Dropdown */}
+      {/* Live Notifications Dropdown */}
       <div className="dropdown">
         <button
           type="button"
-          className="btn btn-icon btn-label-secondary"
+          className="btn btn-icon btn-label-secondary position-relative"
           onClick={() => toggleMenu('notif')}
           title={t('toolbar.notifications')}
           aria-expanded={openMenu === 'notif'}
         >
           <Bell size={18} />
+          {unreadCount > 0 && (
+            <span
+              className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+              style={{ fontSize: '0.65rem' }}
+            >
+              {unreadCount > 99 ? '99+' : unreadCount}
+            </span>
+          )}
         </button>
         {openMenu === 'notif' && (
           <div
-            className="dropdown-menu dropdown-menu-end show p-3"
-            style={{ right: 0, width: 280 }}
+            className="dropdown-menu dropdown-menu-end show p-0"
+            style={{ right: 0, width: 340, maxWidth: '90vw' }}
           >
-            <div className="d-flex align-items-center justify-content-between pb-2 mb-2 border-bottom">
-              <span className="fw-semibold small">{t('toolbar.notifications')}</span>
-              <span className="badge bg-label-primary">0</span>
+            <div className="d-flex align-items-center justify-content-between px-3 py-2 border-bottom">
+              <div className="d-flex align-items-center gap-2">
+                <span className="fw-semibold small">{t('toolbar.notifications')}</span>
+                <span className="badge bg-label-primary">{unreadCount}</span>
+              </div>
+              {unreadCount > 0 && (
+                <button
+                  type="button"
+                  className="btn btn-sm btn-link text-decoration-none p-0 d-inline-flex align-items-center gap-1"
+                  onClick={handleMarkAllRead}
+                >
+                  <CheckCheck size={14} />
+                  <span style={{ fontSize: '0.78rem' }}>{t('notifications.markAllRead')}</span>
+                </button>
+              )}
             </div>
-            <p className="text-body-secondary small mb-0 text-center py-3">
-              {t('toolbar.noNotifications')}
-            </p>
+            <div style={{ maxHeight: 320, overflowY: 'auto' }}>
+              {notificationsQuery.isLoading ? (
+                <p className="text-body-secondary small mb-0 text-center py-4">
+                  {t('common.loading')}
+                </p>
+              ) : (notificationsQuery.data?.results || []).length === 0 ? (
+                <p className="text-body-secondary small mb-0 text-center py-4">
+                  {t('toolbar.noNotifications')}
+                </p>
+              ) : (
+                (notificationsQuery.data?.results || []).map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    className={`dropdown-item border-bottom py-2 px-3 text-wrap ${
+                      !item.is_read ? 'bg-label-primary' : ''
+                    }`}
+                    onClick={() => handleNotificationClick(item)}
+                  >
+                    <div className="d-flex align-items-start justify-content-between gap-2">
+                      <span className="fw-semibold small">
+                        {isKm && item.title_km ? item.title_km : item.title_en}
+                      </span>
+                      {!item.is_read && (
+                        <span
+                          className="rounded-circle bg-primary flex-shrink-0 mt-1"
+                          style={{ width: 8, height: 8 }}
+                        />
+                      )}
+                    </div>
+                    <div className="small text-body-secondary mt-1">
+                      {isKm && item.message_km ? item.message_km : item.message_en}
+                    </div>
+                    <div className="text-body-secondary mt-1" style={{ fontSize: '0.72rem' }}>
+                      {new Date(item.created_at).toLocaleString()}
+                    </div>
+                  </button>
+                ))
+              )}
+            </div>
           </div>
         )}
       </div>

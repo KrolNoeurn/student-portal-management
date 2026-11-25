@@ -547,3 +547,16 @@ h1, h2, h3, h4, h5, h6,
     border: 1px solid #dee2e6 !important;
   }
 }
+
+@keyframes vxSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.vx-spin {
+  animation: vxSpin 0.8s linear infinite;
+}
