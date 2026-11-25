@@ -15,11 +15,11 @@ htmlcov/
 .ruff_cache/
 
 # Environment & Secrets
-.env
+# .env
 .env.local
 .env.*.local
-backend/.env
-frontend/.env
+# backend/.env
+# frontend/.env
 
 # SQLite & Local Storage
 *.sqlite3
