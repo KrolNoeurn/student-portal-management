@@ -76,7 +76,7 @@ npm --prefix frontend run build
 | **Phase 3** | Academic Configuration & Curriculum | Done | `apps.academics` (`AcademicYear`, `Semester`, `Degree`, `Major`, `YearLevel` with single `is_current` constraints, date-bound validation, `PROTECT` delete handling) & `apps.subjects` (`Subject`, `Curriculum`, `CurriculumSubject`), reusable `AcademicFilterBar`, tabbed Academics & Subjects/Curriculum UI |
 | **Phase 4** | Student Management | Done | `apps.students` permanent `Student` identity, configurable transactional Student ID generator (`StudentCodeSequence`), duplicate identity detection, guardians, education history, secure document upload/download, 7-state `StudentStatusHistory`, UTF-8 CSV export, printable Student Detail page, object-level Student role scoping |
 | **Phase 5** | Enrollment Management | Done | `apps.enrollments` (`Enrollment`, `EnrollmentSequence`, `EnrollmentHistory`), transactional registration # generator, single-active-per-year constraint, Promote/Re-Enroll progression chain (`previous_enrollment`), Major/Degree Change & Transfer workflows, Enrollments UI & live Student Detail Enrollments tab |
-| **Phase 6** | Class Management | Planned | Classrooms, `ClassSection`, 7-tab Class Detail page, context-validated roster assignment & transfers |
+| **Phase 6** | Class Management | Done | `apps.classes` (`Classroom`, `ClassSection`, `ClassSubject`, `ClassMembership`, `ClassTransferHistory`), context-matched roster assignment, capacity enforcement & auto `open`/`full` sync, class transfer service, 7-tab Class Detail page (`Overview`, `Students`, `Subjects`, `Teachers`, `Schedule`, `Attendance`, `Reports`) |
 | **Phase 7** | Teaching & Schedule Management | Planned | Teachers, teaching assignments, weekly schedules, teacher/room/class conflict detection |
 | **Phase 8** | Attendance Management | Planned | Cascading bulk attendance workflow, corrections, monthly stats, absence warnings, Excel export |
 | **Phase 9** | Examination & Assessment | Planned | Assessments, score entry grid, grading scales, GPA & academic progress |
@@ -112,3 +112,8 @@ npm --prefix frontend run build
 - Separate `Enrollment` model linked to permanent `Student` profiles with `AcademicYear`, optional `Semester`, `Degree`, `Major`, and `YearLevel`, enforcing one active enrollment per student per academic year and preserving historical records via `previous_enrollment` chains and immutable `EnrollmentHistory`.
 - Transactional workflows for New Enrollment, Re-Enrollment, Promotion to the next academic year/year level (zero duplicate `Student` profiles), Major/Degree Change, and Student Transfer.
 - Filterable Enrollments UI with Promote/Re-Enroll, Program Change/Transfer, and History modals, plus a live Enrollments tab integrated directly into the Student Detail page.
+
+#### Phase 6 — Class Management
+- `apps.classes` managing `Classroom`, `ClassSection`, `ClassSubject`, `ClassMembership`, and `ClassTransferHistory`.
+- Transactional student assignment validates active enrollment matches class context (`AcademicYear`, `Degree`, `Major`, `YearLevel`), enforces capacity limits with automatic `open`/`full` status transitions, and supports audited class transfers preserving historical memberships.
+- Classes & Classrooms UI plus a full 7-tab Class Detail page (`Overview`, `Students`, `Subjects`, `Teachers`, `Schedule`, `Attendance`, `Reports`) with printable roster support.

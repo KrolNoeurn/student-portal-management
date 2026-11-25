@@ -1,6 +1,6 @@
 # Student Portal & Academic Management System — Development Roadmap
 
-> **Document Status:** Active — Phase 5 (Enrollment Management) Implemented  
+> **Document Status:** Active — Phase 6 (Class Management) Implemented  
 > **Delivery Model:** Phased, Vertical-Slice Implementation (Backend + API + Permissions + Frontend + Tests + Docs per Phase)  
 
 ---

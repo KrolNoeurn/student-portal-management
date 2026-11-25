@@ -85,7 +85,6 @@ export const PORTAL_NAVIGATION: NavSection[] = [
         i18nKey: 'nav.classes',
         icon: School,
         permission: 'classes.view_classsection',
-        phase: 6,
       },
     ],
   },
