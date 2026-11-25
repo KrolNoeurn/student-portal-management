@@ -6,6 +6,8 @@ import { AuthProvider } from '@/auth/AuthContext'
 import { ProtectedRoute } from '@/auth/ProtectedRoute'
 import { ThemeLayoutProvider } from '@/contexts/ThemeLayoutContext'
 import { ToastProvider } from '@/contexts/ToastContext'
+import { AcademicsPage } from '@/features/academics/AcademicsPage'
+import { SubjectsCurriculumPage } from '@/features/academics/SubjectsCurriculumPage'
 import { ChangePasswordPage } from '@/features/auth/ChangePasswordPage'
 import { LoginPage } from '@/features/auth/LoginPage'
 import { UsersRolesPage } from '@/features/users/UsersRolesPage'
@@ -43,8 +45,22 @@ export function App() {
                       </ProtectedRoute>
                     }
                   />
-                  <Route path="/academics" element={<ScheduledModulePage titleKey="nav.academics" phase={3} />} />
-                  <Route path="/subjects" element={<ScheduledModulePage titleKey="nav.subjects" phase={3} />} />
+                  <Route
+                    path="/academics"
+                    element={
+                      <ProtectedRoute permission="academics.view_academicyear">
+                        <AcademicsPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/subjects"
+                    element={
+                      <ProtectedRoute permission="subjects.view_subject">
+                        <SubjectsCurriculumPage />
+                      </ProtectedRoute>
+                    }
+                  />
                   <Route path="/students" element={<ScheduledModulePage titleKey="nav.students" phase={4} />} />
                   <Route path="/enrollments" element={<ScheduledModulePage titleKey="nav.enrollments" phase={5} />} />
                   <Route path="/classes" element={<ScheduledModulePage titleKey="nav.classes" phase={6} />} />

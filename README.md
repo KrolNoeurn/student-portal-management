@@ -1,12 +1,16 @@
 # Student Portal & Academic Management System (SAMS)
 
-A modular, production-oriented **Student Portal & Academic Management System** for higher education institutions, built with **Django + Django REST Framework** (SQLite, PostgreSQL-ready) and **React + Vite + Bootstrap 5** styled after the **Vuexy** administration template.
+A modular, production-oriented **Student Portal & Academic Management System** for higher education institutions, built with **Django + Django REST Framework** (SQLite, PostgreSQL-ready) and **React + Vite + TypeScript + Bootstrap 5** styled after the **Vuexy** administration template.
+
+---
 
 ## Architecture & Documentation
 
 - [System Architecture](docs/architecture.md)
 - [Database Design & ERD](docs/database-design.md)
 - [Development Roadmap (Phases 0–12)](docs/development-roadmap.md)
+
+---
 
 ## Project Structure
 
@@ -18,6 +22,8 @@ student-portal/
 └── .agent/        # Project development standards skill
 ```
 
+---
+
 ## Quick Start (Development)
 
 ### 1. Backend (Django REST API)
@@ -27,6 +33,7 @@ cd backend
 cp .env.example .env
 .venv/bin/python manage.py migrate
 .venv/bin/python manage.py seed_system_defaults
+.venv/bin/python manage.py seed_academic_defaults
 .venv/bin/python manage.py seed_roles_permissions
 .venv/bin/python manage.py createsuperuser
 .venv/bin/python manage.py runserver 8000
@@ -36,7 +43,7 @@ cp .env.example .env
 - OpenAPI Docs (Swagger): `http://127.0.0.1:8000/api/docs/`
 - Django Admin: `http://127.0.0.1:8000/admin/`
 
-### 2. Frontend (React + Vite + Bootstrap Vuexy Style)
+### 2. Frontend (React + Vite + Bootstrap 5 Vuexy Style)
 
 ```bash
 cd frontend
@@ -47,13 +54,51 @@ npm run dev
 
 - Frontend App: `http://localhost:5173`
 
-## Features in Phase 1 (Foundation)
+### 3. Running Automated Tests & Checks
 
-- Decoupled Django + DRF backend (`config/settings/{base,dev,test,prod}.py`) with SQLite WAL mode and PostgreSQL-ready ORM configuration
-- Modular `apps.core`, `apps.accounts` (custom `AbstractUser` foundation), `apps.system_settings`, and `apps.auditlogs`
-- Versioned `/api/v1/` API with standardized pagination, normalized error responses, OpenAPI schema, and live `/api/v1/health/` & `/api/v1/system/bootstrap/` endpoints
-- React + Vite + TypeScript + Bootstrap 5 SPA styled after Vuexy:
-  - **Vertical (collapsible sidebar)** and **Horizontal (top menu)** layout switcher
-  - **Light & Dark** theme switcher
-  - Centralized **English (`en`) & Khmer (`km`)** `i18next` localization with Khmer Unicode typography
-  - Axios API client, TanStack Query, React Hook Form + Zod, and reusable Vuexy-styled UI primitives
+```bash
+# Backend tests (all apps)
+DJANGO_ENV=test backend/.venv/bin/python backend/manage.py test apps --verbosity=2
+
+# Frontend typecheck & production build
+npm --prefix frontend run build
+```
+
+---
+
+## Development Phases & Implementation Log
+
+| Phase | Module | Status | Key Deliverables |
+| :-: | :--- | :-: | :--- |
+| **Phase 0** | Architecture & Database Design | Done | `docs/architecture.md`, `docs/database-design.md`, `docs/development-roadmap.md` |
+| **Phase 1** | Foundation & Vuexy-Styled Bootstrap 5 Shell | Done | Django split settings, SQLite WAL, `apps.core`, `apps.system_settings`, `apps.auditlogs`, `/api/v1/health/`, `/api/v1/system/bootstrap/`, Vertical/Horizontal layouts, Light/Dark theme, EN/KM i18n, Axios + TanStack Query + RHF/Zod, reusable UI primitives |
+| **Phase 2** | Authentication, Users, Roles & Permissions | Done | `apps.accounts` JWT login/logout/refresh cookie rotation + token blacklist, `/auth/me/`, `/auth/me/permissions/`, `/auth/password/change/`, Users & Django Group Roles CRUD, Permission Matrix UI, 10 seeded standard roles, permission-driven navigation & `<ProtectedRoute>` / `<PermissionGuard>` |
+| **Phase 3** | Academic Configuration & Curriculum | Done | `apps.academics` (`AcademicYear`, `Semester`, `Degree`, `Major`, `YearLevel` with single `is_current` constraints, date-bound validation, `PROTECT` delete handling) & `apps.subjects` (`Subject`, `Curriculum`, `CurriculumSubject`), reusable `AcademicFilterBar`, tabbed Academics & Subjects/Curriculum UI |
+| **Phase 4** | Student Management | Planned | Permanent `Student` profile, configurable Student ID generator, guardians, documents, status history, print profile |
+| **Phase 5** | Enrollment Management | Planned | Academic enrollment, re-enrollment, promotion, major/degree change, enrollment history |
+| **Phase 6** | Class Management | Planned | Classrooms, `ClassSection`, 7-tab Class Detail page, context-validated roster assignment & transfers |
+| **Phase 7** | Teaching & Schedule Management | Planned | Teachers, teaching assignments, weekly schedules, teacher/room/class conflict detection |
+| **Phase 8** | Attendance Management | Planned | Cascading bulk attendance workflow, corrections, monthly stats, absence warnings, Excel export |
+| **Phase 9** | Examination & Assessment | Planned | Assessments, score entry grid, grading scales, GPA & academic progress |
+| **Phase 10** | Dashboards, Reports, Notifications & Settings | Planned | Role-scoped real-data dashboards, filterable reports (CSV/Excel/PDF/Print), notifications, settings & audit log viewer |
+| **Phase 11** | Testing, Security & Performance Hardening | Planned | Full RBAC/IDOR security audit, N+1 query optimization, cross-layout/i18n QA |
+| **Phase 12** | Deployment, Backup & Migration Strategy | Planned | Production settings, safe SQLite online backup/restore runbook, PostgreSQL migration guide |
+
+---
+
+### Phase Details
+
+#### Phase 1 — Foundation
+- Decoupled `backend/` (Django 5.2 + DRF) and `frontend/` (React 19 + Vite + TypeScript + Bootstrap 5).
+- Shared backend infrastructure: `TimeStampedModel`, `SoftDeleteModel`, `BlameableModel`, `StandardPageNumberPagination`, normalized API error envelope, `StrictDjangoModelPermissions`, safe `sqlite3.Connection.backup()`, and redacted `AuditLog`.
+- Vuexy-styled Bootstrap 5 UI with Vertical collapsible sidebar, Horizontal top menu, Light/Dark theme switcher, and full English/Khmer (`Kantumruy Pro`) localization.
+
+#### Phase 2 — Authentication, Users, Roles & Permissions
+- Native Django `User(AbstractUser)`, `Group` (roles), and `Permission` (granular authorization) with `seed_roles_permissions` seeding all 10 standard roles.
+- Short-lived Bearer access tokens + rotating `HttpOnly` refresh cookies + token blacklisting on logout and password change, with Axios single-flight `401` refresh queue.
+- Full Users, Roles, and Grouped Permission Matrix management UI plus Login and Change Password pages.
+
+#### Phase 3 — Academic Configuration & Curriculum
+- Complete `apps.academics` APIs (`/api/v1/academic-years/`, `/semesters/`, `/degrees/`, `/majors/`, `/year-levels/`) with atomic `set-current` actions, single-current partial unique constraints, semester date-range enforcement, and `seed_academic_defaults` (Year 1–4, Higher Diploma, Bachelor's Degree).
+- Complete `apps.subjects` APIs (`/api/v1/subjects/`, `/curricula/`, `/curriculum-subjects/`) enforcing degree–major alignment and non-circular prerequisites.
+- Tabbed Academics Configuration UI, Subjects & Curriculum Builder UI, and reusable cascading `AcademicFilterBar`.

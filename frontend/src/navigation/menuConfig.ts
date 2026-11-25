@@ -57,7 +57,6 @@ export const PORTAL_NAVIGATION: NavSection[] = [
         i18nKey: 'nav.academics',
         icon: CalendarRange,
         permission: 'academics.view_academicyear',
-        phase: 3,
       },
       {
         id: 'subjects',
@@ -65,7 +64,6 @@ export const PORTAL_NAVIGATION: NavSection[] = [
         i18nKey: 'nav.subjects',
         icon: BookOpen,
         permission: 'subjects.view_subject',
-        phase: 3,
       },
       {
         id: 'students',

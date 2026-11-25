@@ -1,6 +1,6 @@
 # Student Portal & Academic Management System — Development Roadmap
 
-> **Document Status:** Active — Phase 2 (Auth & RBAC) Implemented  
+> **Document Status:** Active — Phase 3 (Academics & Curriculum) Implemented  
 > **Delivery Model:** Phased, Vertical-Slice Implementation (Backend + API + Permissions + Frontend + Tests + Docs per Phase)  
 
 ---
