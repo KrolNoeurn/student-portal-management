@@ -8,7 +8,7 @@ import { PORTAL_NAVIGATION } from '@/navigation/menuConfig';
 export function VerticalLayout({ brandShort, brandFull, children }) {
     const { t } = useTranslation();
     const { hasPermission, hasAnyPermission } = useAuth();
-    const { sidebarCollapsed, toggleSidebarCollapsed, mobileMenuOpen, setMobileMenuOpen, } = useThemeLayout();
+    const { containerClass, sidebarCollapsed, toggleSidebarCollapsed, mobileMenuOpen, setMobileMenuOpen, } = useThemeLayout();
     const visibleSections = PORTAL_NAVIGATION.map((section) => ({
         ...section,
         items: section.items.filter((item) => {
@@ -62,7 +62,7 @@ export function VerticalLayout({ brandShort, brandFull, children }) {
 
       {/* Main Content Area */}
       <div className={`vx-main-vertical ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
-        <div className="vx-navbar-wrapper">
+        <div className={`vx-navbar-wrapper ${containerClass}`}>
           <header className="vx-navbar">
             <div className="d-flex align-items-center gap-2 min-w-0">
               <button type="button" className="btn btn-icon btn-label-secondary d-lg-none" onClick={() => setMobileMenuOpen(true)} aria-label="Open navigation">
@@ -76,13 +76,15 @@ export function VerticalLayout({ brandShort, brandFull, children }) {
           </header>
         </div>
 
-        <main className="vx-content container-xxl">{children}</main>
+        <main className={`vx-content ${containerClass}`}>{children}</main>
 
-        <footer className="vx-footer d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
-          <span>
-            &copy; {new Date().getFullYear()} {brandFull}
-          </span>
-          <span className="badge bg-label-primary">{t('app.phaseBadge')}</span>
+        <footer className="vx-footer">
+          <div className={`${containerClass} d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2`}>
+            <span>
+              &copy; {new Date().getFullYear()} {brandFull}
+            </span>
+            <span className="badge bg-label-primary">{t('app.phaseBadge')}</span>
+          </div>
         </footer>
       </div>
     </div>);

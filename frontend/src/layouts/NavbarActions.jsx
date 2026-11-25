@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Bell, CheckCheck, Columns2, Globe, KeyRound, LogOut, Moon, Rows2, Sun, } from 'lucide-react';
+import { Bell, CheckCheck, Columns2, Globe, KeyRound, LogOut, Maximize2, Minimize2, Moon, Rows2, Sun, } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/auth/AuthContext';
 import { useThemeLayout } from '@/contexts/ThemeLayoutContext';
@@ -10,7 +10,7 @@ import { fetchNotifications, fetchUnreadNotificationCount, markAllNotificationsR
 export function NavbarActions() {
     const { t, i18n } = useTranslation();
     const { user, logout, syncPreferences } = useAuth();
-    const { layout, toggleLayout, theme, toggleTheme } = useThemeLayout();
+    const { layout, toggleLayout, theme, toggleTheme, contentWidth, toggleContentWidth } = useThemeLayout();
     const { showToast } = useToast();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
@@ -86,6 +86,15 @@ export function NavbarActions() {
             ? t('toolbar.switchToHorizontal')
             : t('toolbar.switchToVertical')}>
         {layout === 'vertical' ? <Rows2 size={18}/> : <Columns2 size={18}/>}
+      </button>
+
+      {/* Content Width Switcher (Boxed / Current <-> Full Width) */}
+      <button type="button" className="btn btn-icon btn-label-secondary" onClick={toggleContentWidth} title={contentWidth === 'boxed'
+            ? t('toolbar.switchToFullWidth')
+            : t('toolbar.switchToBoxed')} aria-label={contentWidth === 'boxed'
+            ? t('toolbar.switchToFullWidth')
+            : t('toolbar.switchToBoxed')}>
+        {contentWidth === 'boxed' ? <Maximize2 size={17}/> : <Minimize2 size={17}/>}
       </button>
 
       {/* Theme Switcher (Light <-> Dark) */}

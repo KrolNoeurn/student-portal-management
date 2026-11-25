@@ -31,6 +31,8 @@
     "searchPlaceholder": "Search modules...",
     "switchToHorizontal": "Switch to Horizontal Layout",
     "switchToVertical": "Switch to Vertical Layout",
+    "switchToFullWidth": "Switch to Full Width Layout",
+    "switchToBoxed": "Switch to Boxed (Compact) Layout",
     "switchToDark": "Switch to Dark Mode",
     "switchToLight": "Switch to Light Mode",
     "language": "Language",

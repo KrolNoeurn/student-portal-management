@@ -3,11 +3,13 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { ChevronDown, GraduationCap, Menu, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/auth/AuthContext';
+import { useThemeLayout } from '@/contexts/ThemeLayoutContext';
 import { NavbarActions } from '@/layouts/NavbarActions';
 import { PORTAL_NAVIGATION } from '@/navigation/menuConfig';
 export function HorizontalLayout({ brandShort, brandFull, children }) {
     const { t } = useTranslation();
     const { hasPermission, hasAnyPermission } = useAuth();
+    const { containerClass } = useThemeLayout();
     const location = useLocation();
     const [openDropdown, setOpenDropdown] = useState(null);
     const [mobileOpen, setMobileOpen] = useState(false);
@@ -21,7 +23,7 @@ export function HorizontalLayout({ brandShort, brandFull, children }) {
     })).filter((section) => section.items.length > 0);
     return (<div className="vx-shell-horizontal">
       <header className="vx-horizontal-header">
-        <div className="container-xxl vx-horizontal-top">
+        <div className={`${containerClass} vx-horizontal-top`}>
           <div className="d-flex align-items-center gap-2">
             <button type="button" className="btn btn-icon btn-label-secondary d-lg-none" onClick={() => setMobileOpen((prev) => !prev)} aria-label="Toggle menu">
               {mobileOpen ? <X size={18}/> : <Menu size={18}/>}
@@ -43,7 +45,7 @@ export function HorizontalLayout({ brandShort, brandFull, children }) {
 
         {/* Horizontal Navigation Bar (uses same PORTAL_NAVIGATION source of truth) */}
         <div className={`border-top ${mobileOpen ? 'd-block' : 'd-none d-lg-block'}`}>
-          <nav className="container-xxl vx-horizontal-menu" aria-label="Horizontal navigation">
+          <nav className={`${containerClass} vx-horizontal-menu`} aria-label="Horizontal navigation">
             {visibleSections.map((section) => {
             if (section.items.length === 1) {
                 const item = section.items[0];
@@ -85,10 +87,10 @@ export function HorizontalLayout({ brandShort, brandFull, children }) {
         </div>
       </header>
 
-      <main className="vx-content container-xxl">{children}</main>
+      <main className={`vx-content ${containerClass}`}>{children}</main>
 
       <footer className="vx-footer">
-        <div className="container-xxl d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
+        <div className={`${containerClass} d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2`}>
           <span>
             &copy; {new Date().getFullYear()} {brandFull}
           </span>
