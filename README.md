@@ -75,7 +75,7 @@ npm --prefix frontend run build
 | **Phase 2** | Authentication, Users, Roles & Permissions | Done | `apps.accounts` JWT login/logout/refresh cookie rotation + token blacklist, `/auth/me/`, `/auth/me/permissions/`, `/auth/password/change/`, Users & Django Group Roles CRUD, Permission Matrix UI, 10 seeded standard roles, permission-driven navigation & `<ProtectedRoute>` / `<PermissionGuard>` |
 | **Phase 3** | Academic Configuration & Curriculum | Done | `apps.academics` (`AcademicYear`, `Semester`, `Degree`, `Major`, `YearLevel` with single `is_current` constraints, date-bound validation, `PROTECT` delete handling) & `apps.subjects` (`Subject`, `Curriculum`, `CurriculumSubject`), reusable `AcademicFilterBar`, tabbed Academics & Subjects/Curriculum UI |
 | **Phase 4** | Student Management | Done | `apps.students` permanent `Student` identity, configurable transactional Student ID generator (`StudentCodeSequence`), duplicate identity detection, guardians, education history, secure document upload/download, 7-state `StudentStatusHistory`, UTF-8 CSV export, printable Student Detail page, object-level Student role scoping |
-| **Phase 5** | Enrollment Management | Planned | Academic enrollment, re-enrollment, promotion, major/degree change, enrollment history |
+| **Phase 5** | Enrollment Management | Done | `apps.enrollments` (`Enrollment`, `EnrollmentSequence`, `EnrollmentHistory`), transactional registration # generator, single-active-per-year constraint, Promote/Re-Enroll progression chain (`previous_enrollment`), Major/Degree Change & Transfer workflows, Enrollments UI & live Student Detail Enrollments tab |
 | **Phase 6** | Class Management | Planned | Classrooms, `ClassSection`, 7-tab Class Detail page, context-validated roster assignment & transfers |
 | **Phase 7** | Teaching & Schedule Management | Planned | Teachers, teaching assignments, weekly schedules, teacher/room/class conflict detection |
 | **Phase 8** | Attendance Management | Planned | Cascading bulk attendance workflow, corrections, monthly stats, absence warnings, Excel export |
@@ -107,3 +107,8 @@ npm --prefix frontend run build
 - Permanent `Student` identity model separated from enrollments, supporting all 7 statuses (`applicant`, `active`, `suspended`, `leave`, `transferred`, `graduated`, `withdrawn`) and `draft`/`completed` registration states.
 - Configurable Student ID generator driven by `SystemSetting` (`student_id.format`) with transactional `StudentCodeSequence`, duplicate identity checking, non-destructive soft-delete archiving, safe multipart photo/document uploads with permission-checked downloads, and UTF-8-BOM CSV export.
 - Student Directory with search/filters/export and a 5-tab Printable Student Detail page (`Overview`, `Guardians`, `Education History`, `Documents`, `Status History`).
+
+#### Phase 5 — Enrollment Management
+- Separate `Enrollment` model linked to permanent `Student` profiles with `AcademicYear`, optional `Semester`, `Degree`, `Major`, and `YearLevel`, enforcing one active enrollment per student per academic year and preserving historical records via `previous_enrollment` chains and immutable `EnrollmentHistory`.
+- Transactional workflows for New Enrollment, Re-Enrollment, Promotion to the next academic year/year level (zero duplicate `Student` profiles), Major/Degree Change, and Student Transfer.
+- Filterable Enrollments UI with Promote/Re-Enroll, Program Change/Transfer, and History modals, plus a live Enrollments tab integrated directly into the Student Detail page.

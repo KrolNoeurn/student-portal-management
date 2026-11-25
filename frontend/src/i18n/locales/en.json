@@ -3,7 +3,7 @@
     "shortName": "SAMS",
     "fullName": "Student Portal & Academic Management System",
     "footer": "Student Portal & Academic Management System",
-    "phaseBadge": "Phase 4 · Student Management"
+    "phaseBadge": "Phase 5 · Enrollment Management"
   },
   "nav": {
     "sections": {
@@ -246,6 +246,28 @@
     "statusUpdated": "Student status updated and logged.",
     "photoUpdated": "Profile photo uploaded.",
     "loadError": "Failed to load student records"
+  },
+  "enrollments": {
+    "pageTitle": "Enrollment Management",
+    "pageSubtitle": "Manage academic-year enrollments, re-enrollments, student promotions, program changes, and history.",
+    "newEnrollment": "New Enrollment",
+    "searchPlaceholder": "Search by registration #, Student ID, or student name...",
+    "regNumber": "Registration #",
+    "enrollmentType": "Enrollment Type",
+    "enrollmentDate": "Enrollment Date",
+    "promoteOrReenroll": "Promote / Re-Enroll",
+    "changeProgram": "Change Program / Transfer",
+    "viewHistory": "Enrollment History",
+    "historyTitle": "Academic Enrollment History",
+    "targetYear": "Target Academic Year",
+    "targetYearLevel": "Target Year Level",
+    "keepCurrentStatus": "Keep current status",
+    "event": "Event",
+    "date": "Timestamp",
+    "createdSuccess": "Student enrolled successfully.",
+    "promotedSuccess": "Student promoted / re-enrolled cleanly with historical record preserved.",
+    "programChangedSuccess": "Enrollment program / status updated and logged.",
+    "loadError": "Failed to load enrollments"
   },
   "common": {
     "status": "Status",

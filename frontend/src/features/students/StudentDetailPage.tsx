@@ -29,6 +29,10 @@ import { useToast } from '@/contexts/ToastContext'
 import { StudentFormModal } from '@/features/students/StudentFormModal'
 import { studentStatusTone } from '@/features/students/StudentsListPage'
 import {
+  enrollmentStatusTone,
+} from '@/features/enrollments/EnrollmentsPage'
+import { fetchEnrollments } from '@/features/enrollments/enrollmentsApi'
+import {
   addStudentEducation,
   addStudentGuardian,
   changeStudentStatus,
@@ -42,7 +46,7 @@ import {
   type StudentStatus,
 } from '@/features/students/studentsApi'
 
-type DetailTab = 'overview' | 'guardians' | 'education' | 'documents' | 'history'
+type DetailTab = 'overview' | 'enrollments' | 'guardians' | 'education' | 'documents' | 'history'
 
 export function StudentDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -86,6 +90,12 @@ export function StudentDetailPage() {
   const studentQuery = useQuery({
     queryKey: ['student-detail', id],
     queryFn: () => fetchStudentDetail(id!),
+    enabled: Boolean(id),
+  })
+
+  const studentEnrollmentsQuery = useQuery({
+    queryKey: ['student-enrollments', id],
+    queryFn: () => fetchEnrollments({ student: id!, page_size: 50 }),
     enabled: Boolean(id),
   })
 
@@ -263,6 +273,11 @@ export function StudentDetailPage() {
         {(
           [
             { id: 'overview', label: t('students.tabOverview'), icon: User },
+            {
+              id: 'enrollments',
+              label: `${t('nav.enrollments')} (${studentEnrollmentsQuery.data?.count || 0})`,
+              icon: RefreshCcw,
+            },
             { id: 'guardians', label: `${t('students.tabGuardians')} (${student.guardians.length})`, icon: Users },
             { id: 'education', label: `${t('students.tabEducation')} (${student.education_history.length})`, icon: BookOpen },
             { id: 'documents', label: `${t('students.tabDocuments')} (${student.documents.length})`, icon: FileText },
@@ -342,6 +357,52 @@ export function StudentDetailPage() {
                 </dl>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Enrollments History Tab */}
+      {tab === 'enrollments' && (
+        <div className="card">
+          <div className="card-header d-flex align-items-center justify-content-between">
+            <h6 className="mb-0">{t('enrollments.historyTitle')}</h6>
+            <Link to="/enrollments" className="btn btn-sm btn-label-primary">
+              {t('nav.enrollments')}
+            </Link>
+          </div>
+          <div className="table-responsive">
+            <table className="table align-middle">
+              <thead>
+                <tr>
+                  <th>{t('enrollments.regNumber')}</th>
+                  <th>{t('academics.tabYears')}</th>
+                  <th>{t('subjects.program')}</th>
+                  <th>{t('academics.tabYearLevels')}</th>
+                  <th>{t('common.status')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(studentEnrollmentsQuery.data?.results || []).length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="text-center text-body-secondary py-4 small">
+                      {t('common.noData')}
+                    </td>
+                  </tr>
+                ) : (
+                  (studentEnrollmentsQuery.data?.results || []).map((enr) => (
+                    <tr key={enr.id}>
+                      <td><code>{enr.registration_number}</code></td>
+                      <td>{enr.academic_year_name}</td>
+                      <td>{enr.degree_code} — {enr.major_name_en}</td>
+                      <td>{enr.year_level_name_en}</td>
+                      <td>
+                        <StatusBadge label={enr.status} tone={enrollmentStatusTone(enr.status)} />
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
       )}

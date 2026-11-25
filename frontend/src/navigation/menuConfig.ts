@@ -78,7 +78,6 @@ export const PORTAL_NAVIGATION: NavSection[] = [
         i18nKey: 'nav.enrollments',
         icon: UserCheck,
         permission: 'enrollments.view_enrollment',
-        phase: 5,
       },
       {
         id: 'classes',

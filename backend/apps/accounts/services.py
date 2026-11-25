@@ -84,6 +84,19 @@ STUDENTS_MANAGE_PERMS = [
     "students.delete_studentdocument",
 ]
 
+ENROLLMENTS_VIEW_PERMS = [
+    "enrollments.view_enrollment",
+]
+
+ENROLLMENTS_MANAGE_PERMS = [
+    *ENROLLMENTS_VIEW_PERMS,
+    "enrollments.add_enrollment",
+    "enrollments.change_enrollment",
+    "enrollments.delete_enrollment",
+    "enrollments.promote_enrollment",
+    "enrollments.transfer_enrollment",
+]
+
 # Permissions assigned per role from apps currently installed;
 # future phases extend this mapping cleanly and re-run seed_roles_permissions.
 ROLE_PERMISSION_MAP: dict[str, list[str] | str] = {
@@ -107,6 +120,7 @@ ROLE_PERMISSION_MAP: dict[str, list[str] | str] = {
         "auditlogs.view_audit_logs",
         *ACADEMICS_VIEW_PERMS,
         *STUDENTS_VIEW_PERMS,
+        *ENROLLMENTS_VIEW_PERMS,
     ],
     "Academic Administrator": [
         "accounts.view_user",
@@ -114,11 +128,13 @@ ROLE_PERMISSION_MAP: dict[str, list[str] | str] = {
         "system_settings.view_systemsetting",
         *ACADEMICS_MANAGE_PERMS,
         *STUDENTS_MANAGE_PERMS,
+        *ENROLLMENTS_MANAGE_PERMS,
     ],
     "Registrar": [
         "accounts.view_user",
         *ACADEMICS_VIEW_PERMS,
         *STUDENTS_MANAGE_PERMS,
+        *ENROLLMENTS_MANAGE_PERMS,
     ],
     "Academic Officer": [
         *ACADEMICS_VIEW_PERMS,
@@ -135,6 +151,7 @@ ROLE_PERMISSION_MAP: dict[str, list[str] | str] = {
         "students.add_student",
         "students.change_student",
         "students.print_student_profile",
+        *ENROLLMENTS_MANAGE_PERMS,
     ],
     "Department Head": [
         *ACADEMICS_VIEW_PERMS,
@@ -142,9 +159,10 @@ ROLE_PERMISSION_MAP: dict[str, list[str] | str] = {
         "subjects.change_curriculumsubject",
         "subjects.delete_curriculumsubject",
         *STUDENTS_VIEW_PERMS,
+        *ENROLLMENTS_VIEW_PERMS,
     ],
-    "Instructor": [*ACADEMICS_VIEW_PERMS, *STUDENTS_VIEW_PERMS],
-    "Attendance Officer": [*ACADEMICS_VIEW_PERMS, *STUDENTS_VIEW_PERMS],
+    "Instructor": [*ACADEMICS_VIEW_PERMS, *STUDENTS_VIEW_PERMS, *ENROLLMENTS_VIEW_PERMS],
+    "Attendance Officer": [*ACADEMICS_VIEW_PERMS, *STUDENTS_VIEW_PERMS, *ENROLLMENTS_VIEW_PERMS],
     "Student Affairs": [
         *ACADEMICS_VIEW_PERMS,
         *STUDENTS_VIEW_PERMS,
@@ -152,8 +170,14 @@ ROLE_PERMISSION_MAP: dict[str, list[str] | str] = {
         "students.add_studentdocument",
         "students.delete_studentdocument",
         "students.print_student_profile",
+        *ENROLLMENTS_VIEW_PERMS,
     ],
-    "Student": [*ACADEMICS_VIEW_PERMS, *STUDENTS_VIEW_PERMS, "students.print_student_profile"],
+    "Student": [
+        *ACADEMICS_VIEW_PERMS,
+        *STUDENTS_VIEW_PERMS,
+        "students.print_student_profile",
+        *ENROLLMENTS_VIEW_PERMS,
+    ],
 }
 
 PROTECTED_ROLES = {"Super Administrator"}

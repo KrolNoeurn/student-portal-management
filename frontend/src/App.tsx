@@ -10,6 +10,7 @@ import { AcademicsPage } from '@/features/academics/AcademicsPage'
 import { SubjectsCurriculumPage } from '@/features/academics/SubjectsCurriculumPage'
 import { ChangePasswordPage } from '@/features/auth/ChangePasswordPage'
 import { LoginPage } from '@/features/auth/LoginPage'
+import { EnrollmentsPage } from '@/features/enrollments/EnrollmentsPage'
 import { StudentDetailPage } from '@/features/students/StudentDetailPage'
 import { StudentsListPage } from '@/features/students/StudentsListPage'
 import { UsersRolesPage } from '@/features/users/UsersRolesPage'
@@ -79,7 +80,14 @@ export function App() {
                       </ProtectedRoute>
                     }
                   />
-                  <Route path="/enrollments" element={<ScheduledModulePage titleKey="nav.enrollments" phase={5} />} />
+                  <Route
+                    path="/enrollments"
+                    element={
+                      <ProtectedRoute permission="enrollments.view_enrollment">
+                        <EnrollmentsPage />
+                      </ProtectedRoute>
+                    }
+                  />
                   <Route path="/classes" element={<ScheduledModulePage titleKey="nav.classes" phase={6} />} />
                   <Route path="/teachers" element={<ScheduledModulePage titleKey="nav.teachers" phase={7} />} />
                   <Route path="/attendance" element={<ScheduledModulePage titleKey="nav.attendance" phase={8} />} />
