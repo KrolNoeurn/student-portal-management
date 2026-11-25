@@ -73,6 +73,10 @@ class BackupRecordViewSet(viewsets.ReadOnlyModelViewSet):
         self._check_perm(request)
         return super().list(request, *args, **kwargs)
 
+    def retrieve(self, request, *args, **kwargs):
+        self._check_perm(request)
+        return super().retrieve(request, *args, **kwargs)
+
     @action(detail=False, methods=["post"], url_path="create-backup")
     def create_backup(self, request):
         self._check_perm(request)

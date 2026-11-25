@@ -57,10 +57,16 @@ class StudentViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         include_archived = self.request.query_params.get("include_archived") == "true"
-        base_qs = Student.all_objects if include_archived and user.has_perm("students.archive_student") else Student.objects
-        qs = base_qs.prefetch_related(
-            "guardians", "education_history", "documents", "status_history"
+        base_qs = (
+            Student.all_objects
+            if include_archived and user.has_perm("students.archive_student")
+            else Student.objects
         )
+        qs = base_qs.all()
+        if self.action != "list":
+            qs = qs.prefetch_related(
+                "guardians", "education_history", "documents", "status_history"
+            )
         if _is_student_only_user(user):
             return qs.filter(user=user)
         return qs
@@ -112,8 +118,11 @@ class StudentViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["post"], url_path="check-duplicate")
     def check_duplicate(self, request):
-        if not request.user.has_perm("students.view_student"):
-            raise PermissionDenied()
+        if not (
+            request.user.has_perm("students.add_student")
+            or request.user.has_perm("students.change_student")
+        ):
+            raise PermissionDenied("You do not have permission to check student duplicates.")
         serializer = DuplicateCheckSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         matches = find_potential_duplicates(**serializer.validated_data)

@@ -219,9 +219,16 @@ class AttendanceExportView(APIView):
         if not request.user.has_perm("attendance.export_attendance"):
             raise PermissionDenied("You do not have permission to export attendance reports.")
 
-        qs = _filter_records_qs(request, AttendanceRecord.objects.all()).order_by(
-            "-session__session_date", "student__student_code"
-        )
+        qs = _filter_records_qs(
+            request,
+            AttendanceRecord.objects.select_related(
+                "session", "session__class_section", "session__subject", "student"
+            ),
+        ).order_by("-session__session_date", "student__student_code")
+        if _is_instructor_only_user(request.user):
+            qs = qs.filter(
+                session__class_section__teaching_assignments__teacher__user=request.user
+            ).distinct()
         csv_data = build_attendance_csv(qs)
         response = HttpResponse(csv_data, content_type="text/csv; charset=utf-8")
         response["Content-Disposition"] = 'attachment; filename="attendance_report.csv"'

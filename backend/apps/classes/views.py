@@ -34,6 +34,7 @@ from apps.core.permissions import StrictDjangoModelPermissions
 from apps.enrollments.models import Enrollment
 from apps.enrollments.serializers import EnrollmentSerializer
 from apps.students.views import _is_student_only_user
+from apps.teachers.views import _is_instructor_only_user
 
 
 class ClassroomViewSet(ProtectedDestroyMixin, viewsets.ModelViewSet):
@@ -140,6 +141,8 @@ class ClassSectionViewSet(viewsets.ModelViewSet):
         qs = class_section.memberships.select_related("student", "enrollment").order_by(
             "student__student_code"
         )
+        if _is_student_only_user(request.user):
+            qs = qs.filter(student__user=request.user)
         if status_filter:
             qs = qs.filter(status=status_filter)
         return Response(ClassMembershipSerializer(qs, many=True).data)
@@ -159,6 +162,7 @@ class ClassSectionViewSet(viewsets.ModelViewSet):
             Enrollment.objects.select_related(
                 "student", "academic_year", "degree", "major", "year_level"
             )
+            .prefetch_related("history__actor")
             .filter(
                 academic_year=class_section.academic_year,
                 degree=class_section.degree,
@@ -222,6 +226,8 @@ class ClassSectionViewSet(viewsets.ModelViewSet):
         qs = ClassTransferHistory.objects.select_related(
             "student", "from_class_section", "to_class_section", "transferred_by"
         ).filter(Q(from_class_section=class_section) | Q(to_class_section=class_section))
+        if _is_student_only_user(request.user):
+            qs = qs.filter(student__user=request.user)
         return Response(ClassTransferHistorySerializer(qs, many=True).data)
 
 
@@ -255,12 +261,20 @@ class ClassSubjectViewSet(viewsets.ModelViewSet):
 
 
 class ClassMembershipViewSet(viewsets.ModelViewSet):
-    queryset = ClassMembership.objects.select_related(
-        "class_section", "enrollment", "student"
-    ).order_by("student__student_code")
     serializer_class = ClassMembershipSerializer
     permission_classes = [IsAuthenticated, StrictDjangoModelPermissions]
     filterset_fields = ["class_section", "enrollment", "student", "status"]
+
+    def get_queryset(self):
+        qs = ClassMembership.objects.select_related(
+            "class_section", "enrollment", "student"
+        ).order_by("student__student_code")
+        user = self.request.user
+        if _is_student_only_user(user):
+            return qs.filter(student__user=user)
+        if _is_instructor_only_user(user):
+            return qs.filter(class_section__teaching_assignments__teacher__user=user).distinct()
+        return qs
 
     def destroy(self, request, *args, **kwargs):
         membership = self.get_object()

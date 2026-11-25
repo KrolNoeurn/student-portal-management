@@ -168,4 +168,12 @@ class SubjectGradeViewSet(viewsets.ReadOnlyModelViewSet):
         if not student_id:
             raise ValidationError({"student": ["Query parameter 'student' is required."]})
         student = get_object_or_404(Student, pk=student_id)
+        if _is_instructor_only_user(request.user):
+            from apps.classes.models import ClassMembership
+
+            if not ClassMembership.objects.filter(
+                student=student,
+                class_section__teaching_assignments__teacher__user=request.user,
+            ).exists():
+                raise PermissionDenied("You can only view transcripts for students in your assigned classes.")
         return Response(build_student_transcript(student, published_only=False))
