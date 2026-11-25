@@ -22,6 +22,7 @@ urlpatterns = [
     path("api/v1/", include("apps.classes.urls")),
     path("api/v1/", include("apps.teachers.urls")),
     path("api/v1/", include("apps.attendance.urls")),
+    path("api/v1/", include("apps.examinations.urls")),
     path("api/v1/", include("apps.system_settings.urls")),
 ]
 

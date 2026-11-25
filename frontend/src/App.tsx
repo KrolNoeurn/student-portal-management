@@ -14,6 +14,7 @@ import { LoginPage } from '@/features/auth/LoginPage'
 import { ClassDetailPage } from '@/features/classes/ClassDetailPage'
 import { ClassesPage } from '@/features/classes/ClassesPage'
 import { EnrollmentsPage } from '@/features/enrollments/EnrollmentsPage'
+import { ExaminationsPage } from '@/features/examinations/ExaminationsPage'
 import { StudentDetailPage } from '@/features/students/StudentDetailPage'
 import { StudentsListPage } from '@/features/students/StudentsListPage'
 import { TeachersSchedulesPage } from '@/features/teachers/TeachersSchedulesPage'
@@ -130,7 +131,14 @@ export function App() {
                       </ProtectedRoute>
                     }
                   />
-                  <Route path="/examinations" element={<ScheduledModulePage titleKey="nav.examinations" phase={9} />} />
+                  <Route
+                    path="/examinations"
+                    element={
+                      <ProtectedRoute anyOf={['examinations.view_assessment', 'examinations.view_subjectgrade']}>
+                        <ExaminationsPage />
+                      </ProtectedRoute>
+                    }
+                  />
                   <Route path="/reports" element={<ScheduledModulePage titleKey="nav.reports" phase={10} />} />
                   <Route path="/settings" element={<ScheduledModulePage titleKey="nav.settings" phase={10} />} />
                 </Route>

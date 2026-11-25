@@ -3,7 +3,7 @@
     "shortName": "SAMS",
     "fullName": "Student Portal & Academic Management System",
     "footer": "Student Portal & Academic Management System",
-    "phaseBadge": "Phase 8 · Attendance Management"
+    "phaseBadge": "Phase 9 · Examinations & Grades"
   },
   "nav": {
     "sections": {
@@ -379,6 +379,37 @@
     "goodStanding": "Good Standing",
     "savedSuccess": "Attendance saved cleanly.",
     "correctedSuccess": "Attendance record corrected and logged."
+  },
+  "exams": {
+    "pageTitle": "Examinations & Assessment",
+    "pageSubtitle": "Configure assessments, enter scores, compute weighted grades, publish results, and print academic transcripts.",
+    "tabAssessments": "Assessments & Scores",
+    "tabGrades": "Grades & Publication",
+    "tabTranscript": "Transcript & GPA",
+    "tabScales": "Grading Scale & Types",
+    "createAssessment": "Add Assessment",
+    "printTranscript": "Print Transcript",
+    "allSubjects": "All Subjects",
+    "title": "Assessment Title",
+    "weightMax": "Weight / Max",
+    "maxScore": "Max Score",
+    "weightPercent": "Weight %",
+    "scored": "Scored",
+    "enterScores": "Enter Scores",
+    "score": "Score",
+    "calculateDraft": "Calculate Draft Grades",
+    "calculateAndPublish": "Calculate & Publish",
+    "percentage": "Percentage",
+    "letterGrade": "Grade",
+    "cumulativeGpa": "Cumulative GPA",
+    "creditsEarned": "Credits Earned",
+    "gradingScale": "4.00 Grading Scale",
+    "assessmentTypes": "Assessment Types",
+    "defaultWeight": "Default Weight",
+    "selectClassAndSubject": "Please select both a Class and a Subject first.",
+    "scoresSaved": "Assessment scores saved.",
+    "gradesCalculated": "Draft subject grades calculated.",
+    "gradesPublished": "Subject grades calculated and published."
   },
   "common": {
     "status": "Status",

@@ -34,6 +34,7 @@ cp .env.example .env
 .venv/bin/python manage.py migrate
 .venv/bin/python manage.py seed_system_defaults
 .venv/bin/python manage.py seed_academic_defaults
+.venv/bin/python manage.py seed_examination_defaults
 .venv/bin/python manage.py seed_roles_permissions
 .venv/bin/python manage.py createsuperuser
 .venv/bin/python manage.py runserver 8000
@@ -79,7 +80,7 @@ npm --prefix frontend run build
 | **Phase 6** | Class Management | Done | `apps.classes` (`Classroom`, `ClassSection`, `ClassSubject`, `ClassMembership`, `ClassTransferHistory`), context-matched roster assignment, capacity enforcement & auto `open`/`full` sync, class transfer service, 7-tab Class Detail page (`Overview`, `Students`, `Subjects`, `Teachers`, `Schedule`, `Attendance`, `Reports`) |
 | **Phase 7** | Teaching & Schedule Management | Done | `apps.teachers` (`Teacher`, `TeachingAssignment`, `ClassSchedule`), real-time conflict detection engine (Teacher, Classroom, and ClassSection overlap prevention), weekly timetable UI with live pre-save conflict alerts, live `Teachers` & `Schedule` tabs wired into Class Detail |
 | **Phase 8** | Attendance Management | Done | `apps.attendance` (`AttendanceSession`, `AttendanceRecord`, `AttendanceCorrectionLog`), transactional bulk attendance marking with all 5 statuses, duplicate prevention, audited corrections, monthly attendance % & absence warnings, UTF-8 CSV/Excel export, cascading Attendance UI & live Class Detail `Attendance` tab |
-| **Phase 9** | Examination & Assessment | Planned | Assessments, score entry grid, grading scales, GPA & academic progress |
+| **Phase 9** | Examination & Assessment | Done | `apps.examinations` (`AssessmentType`, `GradingScale`, `Assessment`, `StudentScore`, `SubjectGrade`), seeded 4.00 grading scale & assessment types, transactional score grid, weighted grade & cumulative GPA calculation, permission-gated grade publication, printable academic transcript |
 | **Phase 10** | Dashboards, Reports, Notifications & Settings | Planned | Role-scoped real-data dashboards, filterable reports (CSV/Excel/PDF/Print), notifications, settings & audit log viewer |
 | **Phase 11** | Testing, Security & Performance Hardening | Planned | Full RBAC/IDOR security audit, N+1 query optimization, cross-layout/i18n QA |
 | **Phase 12** | Deployment, Backup & Migration Strategy | Planned | Production settings, safe SQLite online backup/restore runbook, PostgreSQL migration guide |
@@ -127,3 +128,8 @@ npm --prefix frontend run build
 - `apps.attendance` (`AttendanceSession`, `AttendanceRecord`, `AttendanceCorrectionLog`) supporting all 5 statuses (`Present`, `Absent`, `Late`, `Excused`, `Permission`) with database-enforced duplicate session/record prevention.
 - Transactional bulk attendance service (`POST /api/v1/attendance/bulk-mark/`), mandatory-reason corrections, monthly attendance percentage & configurable absence warning threshold (`SystemSetting`), Instructor teaching-assignment authorization, Student self-scoping, and UTF-8 CSV/Excel export.
 - 3-tab Attendance UI (`Take Attendance` cascading workflow, `Attendance History & Corrections`, `Monthly Summary & Warnings`) plus live `Attendance` tab wired into Class Detail.
+
+#### Phase 9 — Examination & Assessment
+- `apps.examinations` (`AssessmentType`, `GradingScale`, `Assessment`, `StudentScore`, `SubjectGrade`) with `seed_examination_defaults` (5 assessment types and 4.00 A–F grading scale).
+- Bulk score entry with `0..max_score` validation, weighted percentage & GPA calculation (`POST /api/v1/grades/calculate/`), permission-gated grade publication (`examinations.publish_grades`), and student-scoped printable transcripts (`GET /api/v1/grades/transcript/`).
+- 4-tab Examinations UI (`Assessments & Scores` grid, `Grades & Publication`, `Transcript & GPA`, and `Grading Scale & Types`).

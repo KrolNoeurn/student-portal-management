@@ -115,8 +115,7 @@ export const PORTAL_NAVIGATION: NavSection[] = [
         path: '/examinations',
         i18nKey: 'nav.examinations',
         icon: FileSpreadsheet,
-        permission: 'examinations.view_assessment',
-        phase: 9,
+        anyOf: ['examinations.view_assessment', 'examinations.view_subjectgrade'],
       },
       {
         id: 'reports',
