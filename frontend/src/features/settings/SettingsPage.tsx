@@ -247,7 +247,13 @@ export function SettingsPage() {
         render: (row) => (
           <StatusBadge
             label={row.status}
-            tone={row.status === 'success' ? 'success' : 'danger'}
+            tone={
+              row.status === 'completed' || row.status === 'success'
+                ? 'success'
+                : row.status === 'pending'
+                  ? 'warning'
+                  : 'danger'
+            }
           />
         ),
       },

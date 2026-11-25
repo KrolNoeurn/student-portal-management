@@ -9,6 +9,9 @@ A modular, production-oriented **Student Portal & Academic Management System** f
 - [System Architecture](docs/architecture.md)
 - [Database Design & ERD](docs/database-design.md)
 - [Development Roadmap (Phases 0–12)](docs/development-roadmap.md)
+- [Production Deployment Guide](docs/deployment.md)
+- [Backup & Restore Runbook](docs/backup-and-restore.md)
+- [SQLite to PostgreSQL Migration Guide](docs/postgresql-migration.md)
 
 ---
 
@@ -83,7 +86,7 @@ npm --prefix frontend run build
 | **Phase 9** | Examination & Assessment | Done | `apps.examinations` (`AssessmentType`, `GradingScale`, `Assessment`, `StudentScore`, `SubjectGrade`), seeded 4.00 grading scale & assessment types, transactional score grid, weighted grade & cumulative GPA calculation, permission-gated grade publication, printable academic transcript |
 | **Phase 10** | Dashboards, Reports, Notifications & Settings | Done | `apps.reports` (4 role-scoped live dashboards + 8 filterable institutional reports with CSV/Excel export & print), `apps.notifications` (recipient-scoped live navbar notifications), `apps.system_settings` (`/settings/`, `/backups/`, `backup_database` CLI), `apps.auditlogs` (`/audit-logs/`), live Dashboard, Reports & 3-tab System Settings UI |
 | **Phase 11** | Testing, Security & Performance Hardening | Done | Cross-role RBAC & IDOR audit/fixes (backups retrieve, class roster/membership scoping, instructor transcript/attendance export scoping, duplicate-check gating), DRF & login rate-limiting (`ScopedRateThrottle`), production security headers, OpenAPI auth gating, N+1 query optimization verified via `assertNumQueries`, React `lazy`/`Suspense` route code-splitting & Vite vendor chunking |
-| **Phase 12** | Deployment, Backup & Migration Strategy | Planned | Production settings, safe SQLite online backup/restore runbook, PostgreSQL migration guide |
+| **Phase 12** | Deployment, Backup & Migration Strategy | Done | Production settings (`manage.py check --deploy` verified), `docs/deployment.md` (Gunicorn + Nginx + HTTPS + Vite SPA), `docs/backup-and-restore.md` (verified online SQLite backup/restore drill + systemd timer), `docs/postgresql-migration.md` (zero-data-loss migration & sequence reset guide), updated `.env.example` |
 
 ---
 
@@ -145,3 +148,8 @@ npm --prefix frontend run build
 - **Rate Limiting & Security Headers:** Enabled DRF `AnonRateThrottle`, `UserRateThrottle`, and `ScopedRateThrottle` (`login: 10/minute`) on `/auth/login/` and `/auth/token/refresh/`, plus `SECURE_REFERRER_POLICY`, `HttpOnly` CSRF/session cookies, `SECURE_SSL_REDIRECT`, and `SECURE_PROXY_SSL_HEADER` in `prod.py`.
 - **Backend & Frontend Performance:** Eliminated unnecessary detail prefetches on `StudentViewSet` list (verified bounded 2-query execution via `assertNumQueries`) and added `history__actor` prefetch on eligible enrollments; converted all React route pages to `React.lazy` + `Suspense` with Vite `manualChunks` vendor splitting (eliminating the >500 kB bundle warning).
 - **Automated Verification:** Added `apps/core/tests/test_security_and_performance.py` covering unauthenticated endpoint enforcement, Student/Instructor IDOR boundaries, multi-role permission matrices, bounded SQL query counts, and login throttling.
+
+#### Phase 12 — Deployment, Backup & PostgreSQL Migration Strategy
+- Added complete production operations runbooks: [docs/deployment.md](docs/deployment.md) (Gunicorn systemd unit, Nginx TLS reverse proxy serving built Vite SPA & Django static assets, security checklist), [docs/backup-and-restore.md](docs/backup-and-restore.md) (`manage.py backup_database --scheduled`, systemd backup timer, integrity check & point-in-time restore procedure), and [docs/postgresql-migration.md](docs/postgresql-migration.md) (natural-key dump/load, `sqlsequencereset`, row-count verification & rollback plan).
+- Aligned `backend/.env.example` with `config/settings/prod.py` PostgreSQL & HTTPS variables and fixed `SettingsPage` backup status badge mapping (`completed`).
+- Verified `manage.py check --deploy` against production settings and executed a live `backup_database` online SQLite snapshot + `PRAGMA integrity_check` / `foreign_key_check` restore drill.

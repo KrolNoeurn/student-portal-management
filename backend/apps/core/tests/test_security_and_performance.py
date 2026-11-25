@@ -1,11 +1,12 @@
 from datetime import date
+from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.core.cache import cache
-from django.test import override_settings
 from rest_framework import status
 from rest_framework.test import APITestCase
+from rest_framework.throttling import ScopedRateThrottle
 
 from apps.academics.models import AcademicYear, Degree, Major, YearLevel
 from apps.academics.services import seed_academic_defaults
@@ -85,6 +86,7 @@ class SecurityRBACAndPerformanceTests(APITestCase):
             degree=self.degree,
             major=self.major,
             year_level=self.y1,
+            enrollment_date=date(2026, 10, 1),
             status="active",
         )
         self.enr_b = Enrollment.objects.create(
@@ -94,13 +96,22 @@ class SecurityRBACAndPerformanceTests(APITestCase):
             degree=self.degree,
             major=self.major,
             year_level=self.y1,
+            enrollment_date=date(2026, 10, 1),
             status="active",
         )
         ClassMembership.objects.create(
-            class_section=self.class1, enrollment=self.enr_a, student=self.student_a, status="active"
+            class_section=self.class1,
+            enrollment=self.enr_a,
+            student=self.student_a,
+            assigned_date=date(2026, 10, 2),
+            status="active",
         )
         ClassMembership.objects.create(
-            class_section=self.class2, enrollment=self.enr_b, student=self.student_b, status="active"
+            class_section=self.class2,
+            enrollment=self.enr_b,
+            student=self.student_b,
+            assigned_date=date(2026, 10, 2),
+            status="active",
         )
 
         # Instructor assigned ONLY to Class 1
@@ -218,10 +229,9 @@ class SecurityRBACAndPerformanceTests(APITestCase):
         )
 
     def test_cross_role_permission_matrix_boundaries(self):
-        auditor = self._make_user("auditor_sec", "Read-Only Auditor")
-        self.client.force_authenticate(auditor)
+        dept_head = self._make_user("dept_head_sec", "Department Head")
+        self.client.force_authenticate(dept_head)
         self.assertEqual(self.client.get("/api/v1/students/").status_code, status.HTTP_200_OK)
-        self.assertEqual(self.client.get("/api/v1/audit-logs/").status_code, status.HTTP_200_OK)
         self.assertEqual(
             self.client.post(
                 "/api/v1/students/",
@@ -229,10 +239,12 @@ class SecurityRBACAndPerformanceTests(APITestCase):
             ).status_code,
             status.HTTP_403_FORBIDDEN,
         )
+        self.assertEqual(self.client.get("/api/v1/backups/").status_code, status.HTTP_403_FORBIDDEN)
 
-        admission = self._make_user("adm_sec", "Admission Officer")
-        self.client.force_authenticate(admission)
+        registrar = self._make_user("reg_sec", "Registrar")
+        self.client.force_authenticate(registrar)
         self.assertEqual(self.client.get("/api/v1/students/").status_code, status.HTTP_200_OK)
+        self.assertEqual(self.client.get("/api/v1/enrollments/").status_code, status.HTTP_200_OK)
         self.assertEqual(self.client.get("/api/v1/settings/").status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(self.client.get("/api/v1/backups/").status_code, status.HTTP_403_FORBIDDEN)
 
@@ -242,6 +254,17 @@ class SecurityRBACAndPerformanceTests(APITestCase):
             self.client.get("/api/v1/attendance/sessions/").status_code, status.HTTP_200_OK
         )
         self.assertEqual(self.client.get("/api/v1/users/").status_code, status.HTTP_403_FORBIDDEN)
+
+        student_affairs = self._make_user("affairs_sec", "Student Affairs")
+        self.client.force_authenticate(student_affairs)
+        self.assertEqual(self.client.get("/api/v1/students/").status_code, status.HTTP_200_OK)
+        self.assertEqual(self.client.get("/api/v1/audit-logs/").status_code, status.HTTP_403_FORBIDDEN)
+
+        sys_admin = self._make_user("sysadmin_sec", "System Administrator")
+        self.client.force_authenticate(sys_admin)
+        self.assertEqual(self.client.get("/api/v1/settings/").status_code, status.HTTP_200_OK)
+        self.assertEqual(self.client.get("/api/v1/backups/").status_code, status.HTTP_200_OK)
+        self.assertEqual(self.client.get("/api/v1/audit-logs/").status_code, status.HTTP_200_OK)
 
     def test_student_list_query_count_is_bounded_without_n_plus_one(self):
         for i in range(15):
@@ -262,29 +285,13 @@ class SecurityRBACAndPerformanceTests(APITestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertGreaterEqual(resp.data["count"], 17)
 
-    @override_settings(
-        REST_FRAMEWORK={
-            "DEFAULT_AUTHENTICATION_CLASSES": [
-                "rest_framework_simplejwt.authentication.JWTAuthentication",
-            ],
-            "DEFAULT_PERMISSION_CLASSES": [
-                "rest_framework.permissions.IsAuthenticated",
-            ],
-            "EXCEPTION_HANDLER": "apps.core.exceptions.custom_exception_handler",
-            "DEFAULT_THROTTLE_CLASSES": [
-                "rest_framework.throttling.ScopedRateThrottle",
-            ],
-            "DEFAULT_THROTTLE_RATES": {
-                "login": "2/minute",
-            },
-        }
-    )
     def test_login_endpoint_enforces_rate_limiting(self):
         cache.clear()
         payload = {"identifier": "secadmin", "password": "WrongPassword!"}
-        r1 = self.client.post("/api/v1/auth/login/", payload)
-        r2 = self.client.post("/api/v1/auth/login/", payload)
-        r3 = self.client.post("/api/v1/auth/login/", payload)
+        with patch.dict(ScopedRateThrottle.THROTTLE_RATES, {"login": "2/minute"}):
+            r1 = self.client.post("/api/v1/auth/login/", payload)
+            r2 = self.client.post("/api/v1/auth/login/", payload)
+            r3 = self.client.post("/api/v1/auth/login/", payload)
         self.assertEqual(r1.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(r2.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(r3.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
