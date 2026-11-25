@@ -80,11 +80,10 @@ export function ClassDetailPage() {
     });
     const cls = classQuery.data;
     const peerClassesQuery = useQuery({
-        queryKey: ['peer-classes', cls?.academic_year, cls?.major, cls?.year_level],
+        queryKey: ['peer-classes', cls?.academic_year, cls?.allow_mixed_degrees, cls?.major, cls?.year_level],
         queryFn: () => fetchClasses({
             academic_year: cls.academic_year,
-            degree: cls.degree,
-            major: cls.major,
+            ...(cls.allow_mixed_degrees ? {} : { degree: cls.degree, major: cls.major }),
             year_level: cls.year_level,
             page_size: 100,
         }),
@@ -154,7 +153,9 @@ export function ClassDetailPage() {
     };
     return (<div>
       <div className="d-print-none">
-        <PageHeader title={`${cls.code} — ${cls.name}`} subtitle={`${cls.academic_year_name} · ${cls.degree_code} / ${isKm && cls.major_name_km ? cls.major_name_km : cls.major_name_en} · ${isKm && cls.year_level_name_km ? cls.year_level_name_km : cls.year_level_name_en}`} breadcrumbs={[
+        <PageHeader title={`${cls.code} — ${cls.name}`} subtitle={`${cls.academic_year_name} · ${cls.allow_mixed_degrees
+                ? `${t('classes.mixedDegreesBadge')} (${(cls.allowed_degrees_detail || []).length > 0 ? cls.allowed_degrees_detail.map((d) => d.code).join(' + ') : t('classes.allDegreesAllowed')})`
+                : `${cls.degree_code} / ${isKm && cls.major_name_km ? cls.major_name_km : cls.major_name_en}`} · ${isKm && cls.year_level_name_km ? cls.year_level_name_km : cls.year_level_name_en}`} breadcrumbs={[
             { label: t('foundation.breadcrumbHome'), to: '/' },
             { label: t('nav.classes'), to: '/classes' },
             { label: cls.code },
@@ -218,9 +219,18 @@ export function ClassDetailPage() {
                   <dt className="col-5 text-body-secondary">{t('academics.tabYears')}</dt>
                   <dd className="col-7">{cls.academic_year_name}</dd>
                   <dt className="col-5 text-body-secondary">{t('academics.degree')}</dt>
-                  <dd className="col-7">{cls.degree_code} — {cls.degree_name_en}</dd>
+                  <dd className="col-7">
+                    {cls.allow_mixed_degrees ? (<span className="d-inline-flex flex-wrap align-items-center gap-1">
+                        <StatusBadge label={t('classes.mixedDegreesBadge')} tone="info"/>
+                        <span>
+                          {(cls.allowed_degrees_detail || []).length > 0
+                            ? cls.allowed_degrees_detail.map((d) => d.code).join(', ')
+                            : t('classes.allDegreesAllowed')}
+                        </span>
+                      </span>) : (`${cls.degree_code} — ${cls.degree_name_en}`)}
+                  </dd>
                   <dt className="col-5 text-body-secondary">{t('academics.major')}</dt>
-                  <dd className="col-7">{cls.major_code} — {cls.major_name_en}</dd>
+                  <dd className="col-7">{cls.major_code ? `${cls.major_code} — ${cls.major_name_en}` : '—'}</dd>
                   <dt className="col-5 text-body-secondary">{t('academics.tabYearLevels')}</dt>
                   <dd className="col-7">{cls.year_level_name_en}</dd>
                   <dt className="col-5 text-body-secondary">{t('students.notes')}</dt>
@@ -274,6 +284,7 @@ export function ClassDetailPage() {
                   <tr>
                     <th>{t('students.studentCode')}</th>
                     <th>{t('students.colStudent')}</th>
+                    <th>{t('subjects.program')}</th>
                     <th>{t('enrollments.regNumber')}</th>
                     <th>{t('classes.assignedDate')}</th>
                     <th>{t('common.status')}</th>
@@ -288,6 +299,10 @@ export function ClassDetailPage() {
                           {m.student_name_en}
                         </Link>
                         {m.student_name_km && (<div className="small text-body-secondary">{m.student_name_km}</div>)}
+                      </td>
+                      <td className="small">
+                        <span className="badge bg-label-info me-1">{m.degree_code}</span>
+                        <span>{m.major_code}</span>
                       </td>
                       <td><code className="small">{m.registration_number}</code></td>
                       <td className="small">{m.assigned_date}</td>
@@ -561,10 +576,12 @@ export function ClassDetailPage() {
           <select required className="form-select" value={selectedEnrollment} onChange={(e) => setSelectedEnrollment(e.target.value)}>
             <option value="">--</option>
             {(eligibleQuery.data || []).map((enr) => (<option key={enr.id} value={String(enr.id)}>
-                {enr.student_code} — {enr.student_name_en} ({enr.registration_number})
+                {enr.student_code} — {enr.student_name_en} [{enr.degree_code} / {enr.major_code}] ({enr.registration_number})
               </option>))}
           </select>
-          <div className="form-text small">{t('classes.eligibleHint')}</div>
+          <div className="form-text small">
+            {cls.allow_mixed_degrees ? t('classes.eligibleMixedHint') : t('classes.eligibleHint')}
+          </div>
         </form>
       </FormModal>
 

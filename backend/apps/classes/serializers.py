@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from apps.academics.models import Degree
 from apps.classes.models import (
     ClassMembership,
     Classroom,
@@ -34,12 +35,16 @@ class ClassroomSerializer(serializers.ModelSerializer):
 class ClassSectionSerializer(serializers.ModelSerializer):
     academic_year_name = serializers.CharField(source="academic_year.name", read_only=True)
     semester_name = serializers.CharField(source="semester.name", read_only=True, default="")
-    degree_code = serializers.CharField(source="degree.code", read_only=True)
-    degree_name_en = serializers.CharField(source="degree.name_en", read_only=True)
-    degree_name_km = serializers.CharField(source="degree.name_km", read_only=True)
-    major_code = serializers.CharField(source="major.code", read_only=True)
-    major_name_en = serializers.CharField(source="major.name_en", read_only=True)
-    major_name_km = serializers.CharField(source="major.name_km", read_only=True)
+    degree_code = serializers.CharField(source="degree.code", read_only=True, default="")
+    degree_name_en = serializers.CharField(source="degree.name_en", read_only=True, default="")
+    degree_name_km = serializers.CharField(source="degree.name_km", read_only=True, default="")
+    major_code = serializers.CharField(source="major.code", read_only=True, default="")
+    major_name_en = serializers.CharField(source="major.name_en", read_only=True, default="")
+    major_name_km = serializers.CharField(source="major.name_km", read_only=True, default="")
+    allowed_degrees = serializers.PrimaryKeyRelatedField(
+        queryset=Degree.objects.all(), many=True, required=False
+    )
+    allowed_degrees_detail = serializers.SerializerMethodField()
     year_level_code = serializers.CharField(source="year_level.code", read_only=True)
     year_level_name_en = serializers.CharField(source="year_level.name_en", read_only=True)
     year_level_name_km = serializers.CharField(source="year_level.name_km", read_only=True)
@@ -63,6 +68,9 @@ class ClassSectionSerializer(serializers.ModelSerializer):
             "academic_year_name",
             "semester",
             "semester_name",
+            "allow_mixed_degrees",
+            "allowed_degrees",
+            "allowed_degrees_detail",
             "degree",
             "degree_code",
             "degree_name_en",
@@ -92,6 +100,7 @@ class ClassSectionSerializer(serializers.ModelSerializer):
             "id",
             "academic_year_name",
             "semester_name",
+            "allowed_degrees_detail",
             "degree_code",
             "degree_name_en",
             "degree_name_km",
@@ -108,6 +117,12 @@ class ClassSectionSerializer(serializers.ModelSerializer):
             "subject_count",
             "created_at",
             "updated_at",
+        ]
+
+    def get_allowed_degrees_detail(self, obj) -> list[dict]:
+        return [
+            {"id": d.id, "code": d.code, "name_en": d.name_en, "name_km": d.name_km}
+            for d in obj.allowed_degrees.all()
         ]
 
     def get_advisor_name(self, obj) -> str:
@@ -174,6 +189,10 @@ class ClassMembershipSerializer(serializers.ModelSerializer):
     registration_number = serializers.CharField(
         source="enrollment.registration_number", read_only=True
     )
+    degree_code = serializers.CharField(source="enrollment.degree.code", read_only=True)
+    degree_name_en = serializers.CharField(source="enrollment.degree.name_en", read_only=True)
+    major_code = serializers.CharField(source="enrollment.major.code", read_only=True)
+    major_name_en = serializers.CharField(source="enrollment.major.name_en", read_only=True)
 
     class Meta:
         model = ClassMembership
@@ -183,6 +202,10 @@ class ClassMembershipSerializer(serializers.ModelSerializer):
             "class_code",
             "enrollment",
             "registration_number",
+            "degree_code",
+            "degree_name_en",
+            "major_code",
+            "major_name_en",
             "student",
             "student_code",
             "student_name_en",
@@ -198,6 +221,10 @@ class ClassMembershipSerializer(serializers.ModelSerializer):
             "id",
             "class_code",
             "registration_number",
+            "degree_code",
+            "degree_name_en",
+            "major_code",
+            "major_name_en",
             "student",
             "student_code",
             "student_name_en",

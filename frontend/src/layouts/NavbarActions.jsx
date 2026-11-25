@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Bell, CheckCheck, Columns2, Globe, KeyRound, LogOut, Maximize2, Minimize2, Moon, Rows2, Sun, } from 'lucide-react';
@@ -15,6 +15,27 @@ export function NavbarActions() {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const [openMenu, setOpenMenu] = useState(null);
+    const actionsRef = useRef(null);
+    useEffect(() => {
+        if (!openMenu)
+            return;
+        const handleOutside = (e) => {
+            if (actionsRef.current && !actionsRef.current.contains(e.target)) {
+                setOpenMenu(null);
+            }
+        };
+        const handleEsc = (e) => {
+            if (e.key === 'Escape') {
+                setOpenMenu(null);
+            }
+        };
+        document.addEventListener('mousedown', handleOutside);
+        document.addEventListener('keydown', handleEsc);
+        return () => {
+            document.removeEventListener('mousedown', handleOutside);
+            document.removeEventListener('keydown', handleEsc);
+        };
+    }, [openMenu]);
     const currentLang = i18n.language === 'km' ? 'km' : 'en';
     const isKm = currentLang === 'km';
     const unreadQuery = useQuery({
@@ -78,7 +99,7 @@ export function NavbarActions() {
     const primaryRole = user?.is_superuser
         ? 'Super Administrator'
         : user?.roles?.[0]?.name || t('toolbar.account');
-    return (<div className="d-flex align-items-center gap-1 position-relative">
+    return (<div ref={actionsRef} className="d-flex align-items-center gap-1 position-relative">
       {/* Layout Switcher (Vertical <-> Horizontal) */}
       <button type="button" className="btn btn-icon btn-label-secondary" onClick={handleToggleLayout} title={layout === 'vertical'
             ? t('toolbar.switchToHorizontal')
@@ -107,7 +128,7 @@ export function NavbarActions() {
         <button type="button" className="btn btn-icon btn-label-secondary" onClick={() => toggleMenu('lang')} title={t('toolbar.language')} aria-expanded={openMenu === 'lang'}>
           <Globe size={18}/>
         </button>
-        {openMenu === 'lang' && (<div className="dropdown-menu dropdown-menu-end show" style={{ right: 0 }}>
+        {openMenu === 'lang' && (<div className="dropdown-menu dropdown-menu-end show" style={{ right: 0, left: 'auto', top: 'calc(100% + 0.5rem)' }}>
             <button type="button" className={`dropdown-item ${currentLang === 'en' ? 'active' : ''}`} onClick={() => handleLanguageChange('en')}>
               <span>English (EN)</span>
             </button>
@@ -125,7 +146,7 @@ export function NavbarActions() {
               {unreadCount > 99 ? '99+' : unreadCount}
             </span>)}
         </button>
-        {openMenu === 'notif' && (<div className="dropdown-menu dropdown-menu-end show p-0" style={{ right: 0, width: 340, maxWidth: '90vw' }}>
+        {openMenu === 'notif' && (<div className="dropdown-menu dropdown-menu-end show p-0" style={{ right: 0, left: 'auto', top: 'calc(100% + 0.5rem)', width: 340, maxWidth: '90vw' }}>
             <div className="d-flex align-items-center justify-content-between px-3 py-2 border-bottom">
               <div className="d-flex align-items-center gap-2">
                 <span className="fw-semibold small">{t('toolbar.notifications')}</span>
@@ -166,7 +187,7 @@ export function NavbarActions() {
             {initials || 'U'}
           </div>
         </button>
-        {openMenu === 'user' && (<div className="dropdown-menu dropdown-menu-end show" style={{ right: 0, minWidth: 230 }}>
+        {openMenu === 'user' && (<div className="dropdown-menu dropdown-menu-end show" style={{ right: 0, left: 'auto', top: 'calc(100% + 0.5rem)', minWidth: 230 }}>
             <div className="px-3 py-2 border-bottom mb-1">
               <div className="fw-semibold small text-truncate">
                 {user?.full_name || user?.username}

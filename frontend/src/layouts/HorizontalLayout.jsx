@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { ChevronDown, GraduationCap, Menu, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -13,6 +13,27 @@ export function HorizontalLayout({ brandShort, brandFull, children }) {
     const location = useLocation();
     const [openDropdown, setOpenDropdown] = useState(null);
     const [mobileOpen, setMobileOpen] = useState(false);
+    const menuRef = useRef(null);
+    useEffect(() => {
+        if (!openDropdown)
+            return;
+        const handleOutside = (e) => {
+            if (menuRef.current && !menuRef.current.contains(e.target)) {
+                setOpenDropdown(null);
+            }
+        };
+        const handleEsc = (e) => {
+            if (e.key === 'Escape') {
+                setOpenDropdown(null);
+            }
+        };
+        document.addEventListener('mousedown', handleOutside);
+        document.addEventListener('keydown', handleEsc);
+        return () => {
+            document.removeEventListener('mousedown', handleOutside);
+            document.removeEventListener('keydown', handleEsc);
+        };
+    }, [openDropdown]);
     const visibleSections = PORTAL_NAVIGATION.map((section) => ({
         ...section,
         items: section.items.filter((item) => {
@@ -45,7 +66,7 @@ export function HorizontalLayout({ brandShort, brandFull, children }) {
 
         {/* Horizontal Navigation Bar (uses same PORTAL_NAVIGATION source of truth) */}
         <div className={`border-top ${mobileOpen ? 'd-block' : 'd-none d-lg-block'}`}>
-          <nav className={`${containerClass} vx-horizontal-menu`} aria-label="Horizontal navigation">
+          <nav ref={menuRef} className={`${containerClass} vx-horizontal-menu`} aria-label="Horizontal navigation">
             {visibleSections.map((section) => {
             if (section.items.length === 1) {
                 const item = section.items[0];
@@ -66,7 +87,7 @@ export function HorizontalLayout({ brandShort, brandFull, children }) {
                     <span>{t(section.i18nKey)}</span>
                     <ChevronDown size={15}/>
                   </button>
-                  {openDropdown === section.id && (<div className="dropdown-menu show" style={{ minWidth: 230 }}>
+                  {openDropdown === section.id && (<div className="dropdown-menu show" style={{ minWidth: 230, top: 'calc(100% + 0.35rem)', left: 0 }}>
                       {section.items.map((item) => {
                         const Icon = item.icon;
                         return (<NavLink key={item.id} to={item.path} className={({ isActive }) => `dropdown-item ${isActive ? 'active' : ''}`} onClick={() => {

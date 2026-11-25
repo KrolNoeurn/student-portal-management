@@ -342,7 +342,7 @@ def generate_report_rows(report_type: str, params) -> tuple[list[str], list[dict
                 "class_code": c.code,
                 "class_name": c.name,
                 "academic_year": c.academic_year.name,
-                "major": c.major.name_en,
+                "major": c.major.name_en if c.major else "Mixed Degrees",
                 "year_level": c.year_level.code,
                 "active_students": c.active_students,
                 "capacity": c.capacity,

@@ -44,6 +44,8 @@ export function ClassesPage() {
         name: '',
         academic_year: '',
         semester: '',
+        allow_mixed_degrees: false,
+        allowed_degrees: [],
         degree: '',
         major: '',
         year_level: '',
@@ -111,8 +113,10 @@ export function ClassesPage() {
                 name: cls.name,
                 academic_year: String(cls.academic_year),
                 semester: cls.semester ? String(cls.semester) : '',
-                degree: String(cls.degree),
-                major: String(cls.major),
+                allow_mixed_degrees: Boolean(cls.allow_mixed_degrees),
+                allowed_degrees: (cls.allowed_degrees || []).map(Number),
+                degree: cls.degree ? String(cls.degree) : '',
+                major: cls.major ? String(cls.major) : '',
                 year_level: String(cls.year_level),
                 default_classroom: cls.default_classroom ? String(cls.default_classroom) : '',
                 capacity: cls.capacity,
@@ -126,6 +130,8 @@ export function ClassesPage() {
                 name: '',
                 academic_year: String(yearsQuery.data?.results.find((y) => y.is_current)?.id || ''),
                 semester: '',
+                allow_mixed_degrees: false,
+                allowed_degrees: [],
                 degree: String(degreesQuery.data?.results[0]?.id || ''),
                 major: '',
                 year_level: String(yearLevelsQuery.data?.results[0]?.id || ''),
@@ -137,6 +143,17 @@ export function ClassesPage() {
         }
         setClassModalOpen(true);
     };
+    const toggleAllowedDegree = (degreeId) => {
+        setClassForm((prev) => {
+            const exists = prev.allowed_degrees.includes(degreeId);
+            return {
+                ...prev,
+                allowed_degrees: exists
+                    ? prev.allowed_degrees.filter((id) => id !== degreeId)
+                    : [...prev.allowed_degrees, degreeId],
+            };
+        });
+    };
     const handleSaveClass = async (e) => {
         e.preventDefault();
         setSubmitting(true);
@@ -147,8 +164,10 @@ export function ClassesPage() {
                 name: classForm.name,
                 academic_year: Number(classForm.academic_year),
                 semester: classForm.semester ? Number(classForm.semester) : null,
-                degree: Number(classForm.degree),
-                major: Number(classForm.major),
+                allow_mixed_degrees: Boolean(classForm.allow_mixed_degrees),
+                allowed_degrees: classForm.allow_mixed_degrees ? classForm.allowed_degrees : [],
+                degree: classForm.degree ? Number(classForm.degree) : null,
+                major: classForm.major ? Number(classForm.major) : null,
                 year_level: Number(classForm.year_level),
                 default_classroom: classForm.default_classroom
                     ? Number(classForm.default_classroom)
@@ -230,13 +249,26 @@ export function ClassesPage() {
             key: 'program',
             header: t('subjects.program'),
             render: (row) => (<div className="small">
-          <div className="fw-medium">
-            {row.major_code} — {isKm && row.major_name_km ? row.major_name_km : row.major_name_en}
-          </div>
-          <div className="text-body-secondary">
-            {row.degree_code} ·{' '}
-            {isKm && row.year_level_name_km ? row.year_level_name_km : row.year_level_name_en}
-          </div>
+          {row.allow_mixed_degrees ? (<>
+              <div className="d-flex flex-wrap align-items-center gap-1 mb-1">
+                <StatusBadge label={t('classes.mixedDegreesBadge')} tone="info"/>
+                {(row.allowed_degrees_detail || []).length > 0 ? (<span className="fw-medium">
+                    {row.allowed_degrees_detail.map((d) => d.code).join(' + ')}
+                  </span>) : (<span className="text-body-secondary">{t('classes.allDegreesAllowed')}</span>)}
+              </div>
+              <div className="text-body-secondary">
+                {row.major_code ? `${row.major_code} · ` : ''}
+                {isKm && row.year_level_name_km ? row.year_level_name_km : row.year_level_name_en}
+              </div>
+            </>) : (<>
+              <div className="fw-medium">
+                {row.major_code} — {isKm && row.major_name_km ? row.major_name_km : row.major_name_en}
+              </div>
+              <div className="text-body-secondary">
+                {row.degree_code} ·{' '}
+                {isKm && row.year_level_name_km ? row.year_level_name_km : row.year_level_name_en}
+              </div>
+            </>)}
         </div>),
         },
         {
@@ -419,9 +451,34 @@ export function ClassesPage() {
                 </option>))}
             </select>
           </div>
+          <div className="col-12">
+            <div className="form-check form-switch">
+              <input id="allow-mixed-degrees" type="checkbox" className="form-check-input" checked={classForm.allow_mixed_degrees} onChange={(e) => setClassForm({
+            ...classForm,
+            allow_mixed_degrees: e.target.checked,
+        })}/>
+              <label htmlFor="allow-mixed-degrees" className="form-check-label fw-medium">
+                {t('classes.allowMixedDegrees')}
+              </label>
+            </div>
+          </div>
+          {classForm.allow_mixed_degrees && (<div className="col-12">
+              <label className="form-label small fw-medium">{t('classes.allowedDegrees')}</label>
+              <div className="d-flex flex-wrap gap-3 p-2 rounded border">
+                {(degreesQuery.data?.results || []).map((d) => (<div key={d.id} className="form-check mb-0">
+                    <input id={`allowed-deg-${d.id}`} type="checkbox" className="form-check-input" checked={classForm.allowed_degrees.includes(d.id)} onChange={() => toggleAllowedDegree(d.id)}/>
+                    <label htmlFor={`allowed-deg-${d.id}`} className="form-check-label small">
+                      {d.code} — {isKm && d.name_km ? d.name_km : d.name_en}
+                    </label>
+                  </div>))}
+              </div>
+              <div className="form-text small">{t('classes.allowedDegreesHint')}</div>
+            </div>)}
           <div className="col-md-4">
-            <label className="form-label">{t('academics.degree')} *</label>
-            <select required className="form-select" value={classForm.degree} onChange={(e) => setClassForm({ ...classForm, degree: e.target.value, major: '' })}>
+            <label className="form-label">
+              {t('academics.degree')} {!classForm.allow_mixed_degrees && '*'}
+            </label>
+            <select required={!classForm.allow_mixed_degrees} className="form-select" value={classForm.degree} onChange={(e) => setClassForm({ ...classForm, degree: e.target.value, major: '' })}>
               <option value="">--</option>
               {(degreesQuery.data?.results || []).map((d) => (<option key={d.id} value={String(d.id)}>
                   {d.code} — {d.name_en}
@@ -429,8 +486,10 @@ export function ClassesPage() {
             </select>
           </div>
           <div className="col-md-4">
-            <label className="form-label">{t('academics.major')} *</label>
-            <select required className="form-select" value={classForm.major} onChange={(e) => setClassForm({ ...classForm, major: e.target.value })}>
+            <label className="form-label">
+              {t('academics.major')} {!classForm.allow_mixed_degrees && '*'}
+            </label>
+            <select required={!classForm.allow_mixed_degrees} className="form-select" value={classForm.major} onChange={(e) => setClassForm({ ...classForm, major: e.target.value })}>
               <option value="">--</option>
               {(formMajorsQuery.data?.results || []).map((m) => (<option key={m.id} value={String(m.id)}>
                   {m.code} — {m.name_en}

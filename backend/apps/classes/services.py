@@ -14,10 +14,20 @@ def validate_class_context(
     *,
     academic_year: AcademicYear,
     semester: Semester | None,
-    degree: Degree,
-    major: Major,
+    degree: Degree | None,
+    major: Major | None,
+    allow_mixed_degrees: bool = False,
 ):
-    if major.degree_id != degree.id:
+    if not allow_mixed_degrees:
+        if degree is None:
+            raise ValidationError(
+                {"degree": ["Degree is required unless mixed degrees are enabled."]}
+            )
+        if major is None:
+            raise ValidationError(
+                {"major": ["Major is required unless mixed degrees are enabled."]}
+            )
+    if major is not None and degree is not None and major.degree_id != degree.id:
         raise ValidationError(
             {"major": [f"Major '{major.name_en}' does not belong to degree '{degree.name_en}'."]}
         )
@@ -31,6 +41,14 @@ def validate_class_context(
         )
 
 
+def get_allowed_degree_ids(class_section: ClassSection) -> set[int]:
+    """Return explicit allowed degree IDs for a mixed-degree class (empty set = all degrees)."""
+    allowed_ids = set(class_section.allowed_degrees.values_list("id", flat=True))
+    if class_section.degree_id:
+        allowed_ids.add(class_section.degree_id)
+    return allowed_ids
+
+
 def _validate_enrollment_matches_class(enrollment: Enrollment, class_section: ClassSection):
     if enrollment.status != Enrollment.StatusChoices.ACTIVE:
         raise ValidationError(
@@ -39,12 +57,19 @@ def _validate_enrollment_matches_class(enrollment: Enrollment, class_section: Cl
     mismatches = []
     if enrollment.academic_year_id != class_section.academic_year_id:
         mismatches.append("academic year")
-    if enrollment.degree_id != class_section.degree_id:
-        mismatches.append("degree")
-    if enrollment.major_id != class_section.major_id:
-        mismatches.append("major")
     if enrollment.year_level_id != class_section.year_level_id:
         mismatches.append("year level")
+
+    if class_section.allow_mixed_degrees:
+        allowed_ids = get_allowed_degree_ids(class_section)
+        if allowed_ids and enrollment.degree_id not in allowed_ids:
+            mismatches.append("allowed degrees")
+    else:
+        if enrollment.degree_id != class_section.degree_id:
+            mismatches.append("degree")
+        if enrollment.major_id != class_section.major_id:
+            mismatches.append("major")
+
     if mismatches:
         raise ValidationError(
             {

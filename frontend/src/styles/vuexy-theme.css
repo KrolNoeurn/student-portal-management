@@ -147,6 +147,12 @@ h1, h2, h3, h4, h5, h6,
   align-items: center;
   justify-content: center;
   border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.btn-icon.btn-sm {
+  width: 32px;
+  height: 32px;
 }
 
 /* Vuexy Soft Label Badges & Avatars */
@@ -473,6 +479,13 @@ h1, h2, h3, h4, h5, h6,
   border: 1px solid var(--vx-border);
   box-shadow: var(--vx-card-shadow);
   border-radius: 0.625rem;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
 }
 
 /* Skeleton Loader */

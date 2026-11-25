@@ -74,12 +74,22 @@ class ClassSection(TimeStampedModel, SoftDeleteModel, BlameableModel):
     degree = models.ForeignKey(
         Degree,
         on_delete=models.PROTECT,
+        null=True,
+        blank=True,
         related_name="class_sections",
     )
     major = models.ForeignKey(
         Major,
         on_delete=models.PROTECT,
+        null=True,
+        blank=True,
         related_name="class_sections",
+    )
+    allow_mixed_degrees = models.BooleanField(default=False, db_index=True)
+    allowed_degrees = models.ManyToManyField(
+        Degree,
+        blank=True,
+        related_name="mixed_class_sections",
     )
     year_level = models.ForeignKey(
         YearLevel,

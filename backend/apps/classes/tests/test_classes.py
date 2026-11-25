@@ -193,3 +193,96 @@ class ClassesAPITests(APITestCase):
             format="json",
         )
         self.assertEqual(blocked.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_mixed_degree_class_section_allows_multiple_degrees(self):
+        self._auth("officer_cls")
+        hd = Degree.objects.get(code="HD")
+        cs_hd = Major.objects.create(degree=hd, code="CS-HD", name_en="Computer Science (HD)")
+        s_hd = Student.objects.create(
+            student_code="STU-2026-0099",
+            full_name_en="Dara Diploma",
+            gender="male",
+            date_of_birth=date(2005, 6, 1),
+        )
+        enr_hd_y1 = Enrollment.objects.create(
+            registration_number="ENR-2026-00099",
+            student=s_hd,
+            academic_year=self.year,
+            degree=hd,
+            major=cs_hd,
+            year_level=self.y1,
+            enrollment_date=date(2026, 10, 1),
+        )
+
+        # Create mixed-degree class allowing both BACH and HD (no single degree/major required)
+        mixed_cls = self.client.post(
+            reverse("class-section-list"),
+            {
+                "code": "MIX-Y1-A",
+                "name": "Mixed Degree Year 1 Section A",
+                "academic_year": self.year.id,
+                "allow_mixed_degrees": True,
+                "allowed_degrees": [self.bach.id, hd.id],
+                "year_level": self.y1.id,
+                "capacity": 30,
+            },
+            format="json",
+        )
+        self.assertEqual(mixed_cls.status_code, status.HTTP_201_CREATED)
+        mixed_id = mixed_cls.data["id"]
+        self.assertTrue(mixed_cls.data["allow_mixed_degrees"])
+        self.assertEqual(set(mixed_cls.data["allowed_degrees"]), {self.bach.id, hd.id})
+
+        # Eligible enrollments include BOTH Bachelor's and Higher Diploma Y1 students
+        eligible = self.client.get(reverse("class-section-eligible-enrollments", args=[mixed_id]))
+        self.assertEqual(eligible.status_code, status.HTTP_200_OK)
+        eligible_ids = {item["id"] for item in eligible.data}
+        self.assertIn(self.enr_cs_y1_1.id, eligible_ids)
+        self.assertIn(enr_hd_y1.id, eligible_ids)
+        self.assertNotIn(self.enr_it_y2.id, eligible_ids)  # Y2 still excluded
+
+        # Assign Bachelor's student and Higher Diploma student into the same class
+        r1 = self.client.post(
+            reverse("class-section-assign-student", args=[mixed_id]),
+            {"enrollment": self.enr_cs_y1_1.id},
+            format="json",
+        )
+        r2 = self.client.post(
+            reverse("class-section-assign-student", args=[mixed_id]),
+            {"enrollment": enr_hd_y1.id},
+            format="json",
+        )
+        self.assertEqual(r1.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(r2.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(r1.data["degree_code"], "BACH")
+        self.assertEqual(r2.data["degree_code"], "HD")
+
+        # Year-level mismatch (Y2) is still rejected even in mixed-degree class
+        r_y2 = self.client.post(
+            reverse("class-section-assign-student", args=[mixed_id]),
+            {"enrollment": self.enr_it_y2.id},
+            format="json",
+        )
+        self.assertEqual(r_y2.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # Restricting allowed_degrees to BACH only blocks transferring HD student into another class
+        bach_only_mixed = self.client.post(
+            reverse("class-section-list"),
+            {
+                "code": "MIX-Y1-BACH",
+                "name": "BACH Only Mixed",
+                "academic_year": self.year.id,
+                "allow_mixed_degrees": True,
+                "allowed_degrees": [self.bach.id],
+                "year_level": self.y1.id,
+                "capacity": 30,
+            },
+            format="json",
+        )
+        self.assertEqual(bach_only_mixed.status_code, status.HTTP_201_CREATED)
+        bad_transfer = self.client.post(
+            reverse("class-section-transfer-student", args=[mixed_id]),
+            {"membership": r2.data["id"], "target_class_section": bach_only_mixed.data["id"]},
+            format="json",
+        )
+        self.assertEqual(bad_transfer.status_code, status.HTTP_400_BAD_REQUEST)

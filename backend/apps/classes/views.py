@@ -27,6 +27,7 @@ from apps.classes.serializers import (
 from apps.classes.services import (
     _sync_class_capacity_status,
     assign_student_to_class,
+    get_allowed_degree_ids,
     transfer_student_class,
     validate_class_context,
 )
@@ -65,6 +66,7 @@ class ClassSectionViewSet(viewsets.ModelViewSet):
     filterset_fields = [
         "academic_year",
         "semester",
+        "allow_mixed_degrees",
         "degree",
         "major",
         "year_level",
@@ -85,6 +87,7 @@ class ClassSectionViewSet(viewsets.ModelViewSet):
                 "default_classroom",
                 "homeroom_advisor",
             )
+            .prefetch_related("allowed_degrees")
             .annotate(
                 annotated_active_students=Count(
                     "memberships",
@@ -103,8 +106,9 @@ class ClassSectionViewSet(viewsets.ModelViewSet):
         validate_class_context(
             academic_year=serializer.validated_data["academic_year"],
             semester=serializer.validated_data.get("semester"),
-            degree=serializer.validated_data["degree"],
-            major=serializer.validated_data["major"],
+            degree=serializer.validated_data.get("degree"),
+            major=serializer.validated_data.get("major"),
+            allow_mixed_degrees=serializer.validated_data.get("allow_mixed_degrees", False),
         )
         obj = serializer.save(created_by=self.request.user, updated_by=self.request.user)
         record_audit_log(
@@ -118,6 +122,9 @@ class ClassSectionViewSet(viewsets.ModelViewSet):
             semester=serializer.validated_data.get("semester", instance.semester),
             degree=serializer.validated_data.get("degree", instance.degree),
             major=serializer.validated_data.get("major", instance.major),
+            allow_mixed_degrees=serializer.validated_data.get(
+                "allow_mixed_degrees", instance.allow_mixed_degrees
+            ),
         )
         obj = serializer.save(updated_by=self.request.user)
         record_audit_log(
@@ -138,9 +145,9 @@ class ClassSectionViewSet(viewsets.ModelViewSet):
     def students(self, request, pk=None):
         class_section = self.get_object()
         status_filter = request.query_params.get("status")
-        qs = class_section.memberships.select_related("student", "enrollment").order_by(
-            "student__student_code"
-        )
+        qs = class_section.memberships.select_related(
+            "student", "enrollment", "enrollment__degree", "enrollment__major"
+        ).order_by("student__student_code")
         if _is_student_only_user(request.user):
             qs = qs.filter(student__user=request.user)
         if status_filter:
@@ -165,14 +172,18 @@ class ClassSectionViewSet(viewsets.ModelViewSet):
             .prefetch_related("history__actor")
             .filter(
                 academic_year=class_section.academic_year,
-                degree=class_section.degree,
-                major=class_section.major,
                 year_level=class_section.year_level,
                 status=Enrollment.StatusChoices.ACTIVE,
             )
             .exclude(id__in=assigned_ids)
-            .order_by("student__student_code")[:100]
         )
+        if class_section.allow_mixed_degrees:
+            allowed_ids = get_allowed_degree_ids(class_section)
+            if allowed_ids:
+                qs = qs.filter(degree_id__in=allowed_ids)
+        else:
+            qs = qs.filter(degree=class_section.degree, major=class_section.major)
+        qs = qs.order_by("student__student_code")[:100]
         return Response(EnrollmentSerializer(qs, many=True).data)
 
     @action(detail=True, methods=["post"], url_path="assign-student")
@@ -267,7 +278,7 @@ class ClassMembershipViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         qs = ClassMembership.objects.select_related(
-            "class_section", "enrollment", "student"
+            "class_section", "enrollment", "enrollment__degree", "enrollment__major", "student"
         ).order_by("student__student_code")
         user = self.request.user
         if _is_student_only_user(user):
