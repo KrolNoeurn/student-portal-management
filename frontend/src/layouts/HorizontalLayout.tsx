@@ -3,6 +3,7 @@ import { NavLink, useLocation } from 'react-router-dom'
 import { ChevronDown, GraduationCap, Menu, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
+import { useAuth } from '@/auth/AuthContext'
 import { NavbarActions } from '@/layouts/NavbarActions'
 import { PORTAL_NAVIGATION } from '@/navigation/menuConfig'
 
@@ -14,9 +15,18 @@ interface HorizontalLayoutProps {
 
 export function HorizontalLayout({ brandShort, brandFull, children }: HorizontalLayoutProps) {
   const { t } = useTranslation()
+  const { hasPermission, hasAnyPermission } = useAuth()
   const location = useLocation()
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
   const [mobileOpen, setMobileOpen] = useState(false)
+
+  const visibleSections = PORTAL_NAVIGATION.map((section) => ({
+    ...section,
+    items: section.items.filter((item) => {
+      if (item.anyOf && item.anyOf.length > 0) return hasAnyPermission(item.anyOf)
+      return hasPermission(item.permission)
+    }),
+  })).filter((section) => section.items.length > 0)
 
   return (
     <div className="vx-shell-horizontal">
@@ -49,7 +59,7 @@ export function HorizontalLayout({ brandShort, brandFull, children }: Horizontal
         {/* Horizontal Navigation Bar (uses same PORTAL_NAVIGATION source of truth) */}
         <div className={`border-top ${mobileOpen ? 'd-block' : 'd-none d-lg-block'}`}>
           <nav className="container-xxl vx-horizontal-menu" aria-label="Horizontal navigation">
-            {PORTAL_NAVIGATION.map((section) => {
+            {visibleSections.map((section) => {
               if (section.items.length === 1) {
                 const item = section.items[0]
                 const Icon = item.icon

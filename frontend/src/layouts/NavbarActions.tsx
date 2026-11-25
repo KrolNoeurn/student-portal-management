@@ -1,21 +1,27 @@
 import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import {
   Bell,
   Columns2,
   Globe,
+  KeyRound,
+  LogOut,
   Moon,
   Rows2,
-  Shield,
   Sun,
-  User,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
+import { useAuth } from '@/auth/AuthContext'
 import { useThemeLayout } from '@/contexts/ThemeLayoutContext'
+import { useToast } from '@/contexts/ToastContext'
 
 export function NavbarActions() {
   const { t, i18n } = useTranslation()
+  const { user, logout, syncPreferences } = useAuth()
   const { layout, toggleLayout, theme, toggleTheme } = useThemeLayout()
+  const { showToast } = useToast()
+  const navigate = useNavigate()
   const [openMenu, setOpenMenu] = useState<'lang' | 'notif' | 'user' | null>(null)
 
   const currentLang = i18n.language === 'km' ? 'km' : 'en'
@@ -24,13 +30,48 @@ export function NavbarActions() {
     setOpenMenu((prev) => (prev === menu ? null : menu))
   }
 
+  const handleToggleLayout = () => {
+    const next = layout === 'vertical' ? 'horizontal' : 'vertical'
+    toggleLayout()
+    syncPreferences({ preferred_layout: next })
+  }
+
+  const handleToggleTheme = () => {
+    const next = theme === 'light' ? 'dark' : 'light'
+    toggleTheme()
+    syncPreferences({ preferred_theme: next })
+  }
+
+  const handleLanguageChange = (lang: 'en' | 'km') => {
+    i18n.changeLanguage(lang)
+    syncPreferences({ preferred_language: lang })
+    setOpenMenu(null)
+  }
+
+  const handleLogout = async () => {
+    setOpenMenu(null)
+    await logout()
+    showToast(t('auth.signedOut'), 'info')
+    navigate('/login', { replace: true })
+  }
+
+  const initials = (user?.full_name || user?.username || 'U')
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() || '')
+    .join('')
+
+  const primaryRole = user?.is_superuser
+    ? 'Super Administrator'
+    : user?.roles?.[0]?.name || t('toolbar.account')
+
   return (
     <div className="d-flex align-items-center gap-1 position-relative">
       {/* Layout Switcher (Vertical <-> Horizontal) */}
       <button
         type="button"
         className="btn btn-icon btn-label-secondary"
-        onClick={toggleLayout}
+        onClick={handleToggleLayout}
         title={
           layout === 'vertical'
             ? t('toolbar.switchToHorizontal')
@@ -49,7 +90,7 @@ export function NavbarActions() {
       <button
         type="button"
         className="btn btn-icon btn-label-secondary"
-        onClick={toggleTheme}
+        onClick={handleToggleTheme}
         title={theme === 'light' ? t('toolbar.switchToDark') : t('toolbar.switchToLight')}
         aria-label={theme === 'light' ? t('toolbar.switchToDark') : t('toolbar.switchToLight')}
       >
@@ -72,20 +113,14 @@ export function NavbarActions() {
             <button
               type="button"
               className={`dropdown-item ${currentLang === 'en' ? 'active' : ''}`}
-              onClick={() => {
-                i18n.changeLanguage('en')
-                setOpenMenu(null)
-              }}
+              onClick={() => handleLanguageChange('en')}
             >
               <span>English (EN)</span>
             </button>
             <button
               type="button"
               className={`dropdown-item ${currentLang === 'km' ? 'active' : ''}`}
-              onClick={() => {
-                i18n.changeLanguage('km')
-                setOpenMenu(null)
-              }}
+              onClick={() => handleLanguageChange('km')}
             >
               <span>ភាសាខ្មែរ (KM)</span>
             </button>
@@ -120,7 +155,7 @@ export function NavbarActions() {
         )}
       </div>
 
-      {/* User Account Dropdown */}
+      {/* Authenticated User Account Dropdown */}
       <div className="dropdown ms-1">
         <button
           type="button"
@@ -129,27 +164,38 @@ export function NavbarActions() {
           aria-expanded={openMenu === 'user'}
         >
           <div className="vx-avatar vx-avatar-sm rounded-circle bg-label-primary">
-            <User size={16} />
+            {initials || 'U'}
           </div>
         </button>
         {openMenu === 'user' && (
           <div
             className="dropdown-menu dropdown-menu-end show"
-            style={{ right: 0, minWidth: 220 }}
+            style={{ right: 0, minWidth: 230 }}
           >
             <div className="px-3 py-2 border-bottom mb-1">
-              <div className="fw-semibold small">{t('toolbar.account')}</div>
-              <div className="text-body-secondary" style={{ fontSize: '0.78rem' }}>
-                {t('toolbar.signInReady')}
+              <div className="fw-semibold small text-truncate">
+                {user?.full_name || user?.username}
+              </div>
+              <div className="text-body-secondary text-truncate" style={{ fontSize: '0.78rem' }}>
+                {primaryRole}
               </div>
             </div>
-            <button
-              type="button"
+            <Link
+              to="/change-password"
               className="dropdown-item"
               onClick={() => setOpenMenu(null)}
             >
-              <Shield size={15} />
-              <span>{t('app.phaseBadge')}</span>
+              <KeyRound size={15} />
+              <span>{t('toolbar.changePassword')}</span>
+            </Link>
+            <div className="dropdown-divider" />
+            <button
+              type="button"
+              className="dropdown-item text-danger"
+              onClick={handleLogout}
+            >
+              <LogOut size={15} />
+              <span>{t('toolbar.logout')}</span>
             </button>
           </div>
         )}

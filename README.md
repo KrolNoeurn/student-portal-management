@@ -27,6 +27,8 @@ cd backend
 cp .env.example .env
 .venv/bin/python manage.py migrate
 .venv/bin/python manage.py seed_system_defaults
+.venv/bin/python manage.py seed_roles_permissions
+.venv/bin/python manage.py createsuperuser
 .venv/bin/python manage.py runserver 8000
 ```
 

@@ -3,6 +3,7 @@ import { NavLink } from 'react-router-dom'
 import { ChevronLeft, ChevronRight, GraduationCap, Menu, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
+import { useAuth } from '@/auth/AuthContext'
 import { useThemeLayout } from '@/contexts/ThemeLayoutContext'
 import { NavbarActions } from '@/layouts/NavbarActions'
 import { PORTAL_NAVIGATION } from '@/navigation/menuConfig'
@@ -15,12 +16,21 @@ interface VerticalLayoutProps {
 
 export function VerticalLayout({ brandShort, brandFull, children }: VerticalLayoutProps) {
   const { t } = useTranslation()
+  const { hasPermission, hasAnyPermission } = useAuth()
   const {
     sidebarCollapsed,
     toggleSidebarCollapsed,
     mobileMenuOpen,
     setMobileMenuOpen,
   } = useThemeLayout()
+
+  const visibleSections = PORTAL_NAVIGATION.map((section) => ({
+    ...section,
+    items: section.items.filter((item) => {
+      if (item.anyOf && item.anyOf.length > 0) return hasAnyPermission(item.anyOf)
+      return hasPermission(item.permission)
+    }),
+  })).filter((section) => section.items.length > 0)
 
   return (
     <div className="vx-shell-vertical">
@@ -72,7 +82,7 @@ export function VerticalLayout({ brandShort, brandFull, children }: VerticalLayo
         </div>
 
         <nav className="vx-sidebar-nav" aria-label="Primary navigation">
-          {PORTAL_NAVIGATION.map((section) => (
+          {visibleSections.map((section) => (
             <div key={section.id}>
               <div className="vx-nav-section-title">{t(section.i18nKey)}</div>
               {section.items.map((item) => {

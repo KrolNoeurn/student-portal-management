@@ -20,6 +20,7 @@ export interface NavItem {
   i18nKey: string
   icon: LucideIcon
   permission?: string
+  anyOf?: string[]
   phase?: number
 }
 
@@ -139,8 +140,7 @@ export const PORTAL_NAVIGATION: NavSection[] = [
         path: '/users',
         i18nKey: 'nav.users',
         icon: ShieldCheck,
-        permission: 'accounts.view_user',
-        phase: 2,
+        anyOf: ['accounts.view_user', 'auth.view_group'],
       },
       {
         id: 'settings',

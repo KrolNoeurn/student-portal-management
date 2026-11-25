@@ -32,7 +32,7 @@ interface RoadmapRow {
 
 const ROADMAP_MODULES: RoadmapRow[] = [
   { id: 'foundation', moduleKey: 'nav.dashboard', phase: 1, apiPrefix: '/api/v1/health/', status: 'active' },
-  { id: 'users', moduleKey: 'nav.users', phase: 2, apiPrefix: '/api/v1/auth/, /api/v1/users/', status: 'planned' },
+  { id: 'users', moduleKey: 'nav.users', phase: 2, apiPrefix: '/api/v1/auth/, /api/v1/users/, /api/v1/roles/', status: 'active' },
   { id: 'academics', moduleKey: 'nav.academics', phase: 3, apiPrefix: '/api/v1/academic-years/, /degrees/, /majors/', status: 'planned' },
   { id: 'subjects', moduleKey: 'nav.subjects', phase: 3, apiPrefix: '/api/v1/subjects/, /api/v1/curricula/', status: 'planned' },
   { id: 'students', moduleKey: 'nav.students', phase: 4, apiPrefix: '/api/v1/students/', status: 'planned' },
