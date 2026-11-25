@@ -1,6 +1,6 @@
 # Student Portal & Academic Management System (SAMS)
 
-A modular, production-oriented **Student Portal & Academic Management System** for higher education institutions, built with **Django + Django REST Framework** (SQLite, PostgreSQL-ready) and **React + Vite + TypeScript + Bootstrap 5** styled after the **Vuexy** administration template.
+A modular, production-oriented **Student Portal & Academic Management System** for higher education institutions, built with **Django + Django REST Framework** (SQLite, PostgreSQL-ready) and **React + Vite + JavaScript + Bootstrap 5** styled after the **Vuexy** administration template.
 
 ---
 
@@ -20,7 +20,7 @@ A modular, production-oriented **Student Portal & Academic Management System** f
 ```text
 student-portal/
 ├── backend/       # Django + DRF REST API (/api/v1/)
-├── frontend/      # React + Vite + TypeScript + Bootstrap 5 (Vuexy-styled)
+├── frontend/      # React + Vite + JavaScript (JSX) + Bootstrap 5 (Vuexy-styled)
 ├── docs/          # Architecture, database design, roadmap, runbooks
 └── .agent/        # Project development standards skill
 ```
@@ -75,7 +75,7 @@ npm run dev
 # Backend tests (all apps)
 DJANGO_ENV=test backend/.venv/bin/python backend/manage.py test apps --verbosity=2
 
-# Frontend typecheck & production build
+# Frontend production build
 npm --prefix frontend run build
 ```
 
