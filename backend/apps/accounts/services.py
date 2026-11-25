@@ -122,6 +122,25 @@ CLASSES_MANAGE_PERMS = [
     "classes.transfer_class_student",
 ]
 
+TEACHERS_VIEW_PERMS = [
+    "teachers.view_teacher",
+    "teachers.view_teachingassignment",
+    "teachers.view_classschedule",
+]
+
+TEACHERS_MANAGE_PERMS = [
+    *TEACHERS_VIEW_PERMS,
+    "teachers.add_teacher",
+    "teachers.change_teacher",
+    "teachers.delete_teacher",
+    "teachers.add_teachingassignment",
+    "teachers.change_teachingassignment",
+    "teachers.delete_teachingassignment",
+    "teachers.add_classschedule",
+    "teachers.change_classschedule",
+    "teachers.delete_classschedule",
+]
+
 # Permissions assigned per role from apps currently installed;
 # future phases extend this mapping cleanly and re-run seed_roles_permissions.
 ROLE_PERMISSION_MAP: dict[str, list[str] | str] = {
@@ -147,6 +166,7 @@ ROLE_PERMISSION_MAP: dict[str, list[str] | str] = {
         *STUDENTS_VIEW_PERMS,
         *ENROLLMENTS_VIEW_PERMS,
         *CLASSES_VIEW_PERMS,
+        *TEACHERS_VIEW_PERMS,
     ],
     "Academic Administrator": [
         "accounts.view_user",
@@ -156,6 +176,7 @@ ROLE_PERMISSION_MAP: dict[str, list[str] | str] = {
         *STUDENTS_MANAGE_PERMS,
         *ENROLLMENTS_MANAGE_PERMS,
         *CLASSES_MANAGE_PERMS,
+        *TEACHERS_MANAGE_PERMS,
     ],
     "Registrar": [
         "accounts.view_user",
@@ -167,6 +188,7 @@ ROLE_PERMISSION_MAP: dict[str, list[str] | str] = {
         "classes.transfer_class_student",
         "classes.add_classmembership",
         "classes.change_classmembership",
+        *TEACHERS_VIEW_PERMS,
     ],
     "Academic Officer": [
         *ACADEMICS_VIEW_PERMS,
@@ -185,6 +207,7 @@ ROLE_PERMISSION_MAP: dict[str, list[str] | str] = {
         "students.print_student_profile",
         *ENROLLMENTS_MANAGE_PERMS,
         *CLASSES_MANAGE_PERMS,
+        *TEACHERS_MANAGE_PERMS,
     ],
     "Department Head": [
         *ACADEMICS_VIEW_PERMS,
@@ -194,9 +217,22 @@ ROLE_PERMISSION_MAP: dict[str, list[str] | str] = {
         *STUDENTS_VIEW_PERMS,
         *ENROLLMENTS_VIEW_PERMS,
         *CLASSES_MANAGE_PERMS,
+        *TEACHERS_MANAGE_PERMS,
     ],
-    "Instructor": [*ACADEMICS_VIEW_PERMS, *STUDENTS_VIEW_PERMS, *ENROLLMENTS_VIEW_PERMS, *CLASSES_VIEW_PERMS],
-    "Attendance Officer": [*ACADEMICS_VIEW_PERMS, *STUDENTS_VIEW_PERMS, *ENROLLMENTS_VIEW_PERMS, *CLASSES_VIEW_PERMS],
+    "Instructor": [
+        *ACADEMICS_VIEW_PERMS,
+        *STUDENTS_VIEW_PERMS,
+        *ENROLLMENTS_VIEW_PERMS,
+        *CLASSES_VIEW_PERMS,
+        *TEACHERS_VIEW_PERMS,
+    ],
+    "Attendance Officer": [
+        *ACADEMICS_VIEW_PERMS,
+        *STUDENTS_VIEW_PERMS,
+        *ENROLLMENTS_VIEW_PERMS,
+        *CLASSES_VIEW_PERMS,
+        *TEACHERS_VIEW_PERMS,
+    ],
     "Student Affairs": [
         *ACADEMICS_VIEW_PERMS,
         *STUDENTS_VIEW_PERMS,
@@ -206,6 +242,7 @@ ROLE_PERMISSION_MAP: dict[str, list[str] | str] = {
         "students.print_student_profile",
         *ENROLLMENTS_VIEW_PERMS,
         *CLASSES_VIEW_PERMS,
+        *TEACHERS_VIEW_PERMS,
     ],
     "Student": [
         *ACADEMICS_VIEW_PERMS,
@@ -213,6 +250,8 @@ ROLE_PERMISSION_MAP: dict[str, list[str] | str] = {
         "students.print_student_profile",
         *ENROLLMENTS_VIEW_PERMS,
         *CLASSES_VIEW_PERMS,
+        "teachers.view_teachingassignment",
+        "teachers.view_classschedule",
     ],
 }
 

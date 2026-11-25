@@ -29,6 +29,7 @@ import { StatusBadge } from '@/components/ui/StatusBadge'
 import { useToast } from '@/contexts/ToastContext'
 import { fetchSubjects } from '@/features/academics/academicsApi'
 import { classStatusTone } from '@/features/classes/ClassesPage'
+import { fetchSchedules, fetchTeachingAssignments } from '@/features/teachers/teachersApi'
 import {
   addClassSubjectApi,
   assignStudentToClassApi,
@@ -99,6 +100,16 @@ export function ClassDetailPage() {
     queryKey: ['subjects-all'],
     queryFn: () => fetchSubjects({ page_size: 100 }),
     enabled: tab === 'subjects',
+  })
+  const classTeachersQuery = useQuery({
+    queryKey: ['class-teaching-assignments', id],
+    queryFn: () => fetchTeachingAssignments({ class_section: id!, status: 'active' }),
+    enabled: Boolean(id),
+  })
+  const classScheduleQuery = useQuery({
+    queryKey: ['class-schedules', id],
+    queryFn: () => fetchSchedules({ class_section: id! }),
+    enabled: Boolean(id),
   })
 
   const cls = classQuery.data
@@ -537,23 +548,94 @@ export function ClassDetailPage() {
         </div>
       )}
 
-      {/* 4. Teachers Tab (Connected in Phase 7) */}
+      {/* 4. Teachers Tab (Live Teaching Assignments) */}
       {tab === 'teachers' && (
         <div className="card">
-          <EmptyState
-            title={t('classes.tabTeachers')}
-            description={t('classes.phase7Ready')}
-          />
+          <div className="card-header d-flex align-items-center justify-content-between">
+            <h6 className="mb-0">{t('classes.tabTeachers')}</h6>
+            <Link to="/teachers" className="btn btn-sm btn-label-primary">
+              {t('nav.teachers')}
+            </Link>
+          </div>
+          {(classTeachersQuery.data?.results || []).length === 0 ? (
+            <EmptyState title={t('common.noData')} />
+          ) : (
+            <div className="table-responsive">
+              <table className="table align-middle">
+                <thead>
+                  <tr>
+                    <th>{t('teachers.colTeacher')}</th>
+                    <th>{t('subjects.subject')}</th>
+                    <th>{t('teachers.role')}</th>
+                    <th>{t('common.status')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(classTeachersQuery.data?.results || []).map((a) => (
+                    <tr key={a.id}>
+                      <td>
+                        <div className="fw-medium">{a.teacher_name_en}</div>
+                        <code className="small">{a.teacher_code}</code>
+                      </td>
+                      <td>
+                        <code className="me-2">{a.subject_code}</code>
+                        {a.subject_name_en}
+                      </td>
+                      <td><StatusBadge label={a.role} tone="primary" /></td>
+                      <td><StatusBadge label={a.status} tone="success" /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
 
-      {/* 5. Schedule Tab (Connected in Phase 7) */}
+      {/* 5. Schedule Tab (Live Weekly Timetable) */}
       {tab === 'schedule' && (
         <div className="card">
-          <EmptyState
-            title={t('classes.tabSchedule')}
-            description={t('classes.phase7Ready')}
-          />
+          <div className="card-header d-flex align-items-center justify-content-between">
+            <h6 className="mb-0">{t('classes.tabSchedule')}</h6>
+            <Link to="/teachers" className="btn btn-sm btn-label-primary">
+              {t('teachers.tabSchedule')}
+            </Link>
+          </div>
+          {(classScheduleQuery.data?.results || []).length === 0 ? (
+            <EmptyState title={t('common.noData')} />
+          ) : (
+            <div className="table-responsive">
+              <table className="table align-middle">
+                <thead>
+                  <tr>
+                    <th>{t('teachers.dayOfWeek')}</th>
+                    <th>{t('teachers.startTime')}</th>
+                    <th>{t('subjects.subject')}</th>
+                    <th>{t('teachers.colTeacher')}</th>
+                    <th>{t('classes.classroom')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(classScheduleQuery.data?.results || []).map((s) => (
+                    <tr key={s.id}>
+                      <td className="fw-semibold">{s.day_name}</td>
+                      <td>
+                        <code>
+                          {s.start_time.slice(0, 5)} – {s.end_time.slice(0, 5)}
+                        </code>
+                      </td>
+                      <td>
+                        <code className="me-2">{s.subject_code}</code>
+                        {s.subject_name_en}
+                      </td>
+                      <td>{s.teacher_name_en}</td>
+                      <td><StatusBadge label={s.classroom_code} tone="info" /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
 

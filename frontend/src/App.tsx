@@ -15,6 +15,7 @@ import { ClassesPage } from '@/features/classes/ClassesPage'
 import { EnrollmentsPage } from '@/features/enrollments/EnrollmentsPage'
 import { StudentDetailPage } from '@/features/students/StudentDetailPage'
 import { StudentsListPage } from '@/features/students/StudentsListPage'
+import { TeachersSchedulesPage } from '@/features/teachers/TeachersSchedulesPage'
 import { UsersRolesPage } from '@/features/users/UsersRolesPage'
 import { PortalLayout } from '@/layouts/PortalLayout'
 import { ErrorPage } from '@/pages/ErrorPage'
@@ -106,7 +107,14 @@ export function App() {
                       </ProtectedRoute>
                     }
                   />
-                  <Route path="/teachers" element={<ScheduledModulePage titleKey="nav.teachers" phase={7} />} />
+                  <Route
+                    path="/teachers"
+                    element={
+                      <ProtectedRoute anyOf={['teachers.view_teacher', 'teachers.view_classschedule']}>
+                        <TeachersSchedulesPage />
+                      </ProtectedRoute>
+                    }
+                  />
                   <Route path="/attendance" element={<ScheduledModulePage titleKey="nav.attendance" phase={8} />} />
                   <Route path="/examinations" element={<ScheduledModulePage titleKey="nav.examinations" phase={9} />} />
                   <Route path="/reports" element={<ScheduledModulePage titleKey="nav.reports" phase={10} />} />

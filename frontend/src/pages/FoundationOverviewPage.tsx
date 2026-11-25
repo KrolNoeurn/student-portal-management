@@ -38,7 +38,7 @@ const ROADMAP_MODULES: RoadmapRow[] = [
   { id: 'students', moduleKey: 'nav.students', phase: 4, apiPrefix: '/api/v1/students/', status: 'active' },
   { id: 'enrollments', moduleKey: 'nav.enrollments', phase: 5, apiPrefix: '/api/v1/enrollments/', status: 'active' },
   { id: 'classes', moduleKey: 'nav.classes', phase: 6, apiPrefix: '/api/v1/classes/, /api/v1/classrooms/', status: 'active' },
-  { id: 'teachers', moduleKey: 'nav.teachers', phase: 7, apiPrefix: '/api/v1/teachers/, /api/v1/schedules/', status: 'planned' },
+  { id: 'teachers', moduleKey: 'nav.teachers', phase: 7, apiPrefix: '/api/v1/teachers/, /api/v1/schedules/', status: 'active' },
   { id: 'attendance', moduleKey: 'nav.attendance', phase: 8, apiPrefix: '/api/v1/attendance/', status: 'planned' },
   { id: 'examinations', moduleKey: 'nav.examinations', phase: 9, apiPrefix: '/api/v1/assessments/, /api/v1/grades/', status: 'planned' },
   { id: 'reports', moduleKey: 'nav.reports', phase: 10, apiPrefix: '/api/v1/reports/, /api/v1/dashboard/', status: 'planned' },

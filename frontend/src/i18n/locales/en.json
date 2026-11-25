@@ -3,7 +3,7 @@
     "shortName": "SAMS",
     "fullName": "Student Portal & Academic Management System",
     "footer": "Student Portal & Academic Management System",
-    "phaseBadge": "Phase 6 · Class Management"
+    "phaseBadge": "Phase 7 · Teaching & Schedules"
   },
   "nav": {
     "sections": {
@@ -311,6 +311,36 @@
     "phase7Ready": "Live teaching assignments and weekly schedules will populate here in Phase 7.",
     "phase8Ready": "Live class attendance sessions and summaries will populate here in Phase 8.",
     "loadError": "Failed to load classes"
+  },
+  "teachers": {
+    "pageTitle": "Teaching & Schedule Management",
+    "pageSubtitle": "Manage instructor profiles, subject teaching assignments, weekly schedules, and conflict detection.",
+    "tabTeachers": "Teachers",
+    "tabAssignments": "Teaching Assignments",
+    "tabSchedule": "Weekly Schedule",
+    "addTeacher": "Add Teacher",
+    "editTeacher": "Edit Teacher",
+    "addAssignment": "Assign Instructor",
+    "addSchedule": "Add Schedule Slot",
+    "searchPlaceholder": "Search by teacher code, name, email, or specialization...",
+    "colTeacher": "Instructor",
+    "specialization": "Specialization",
+    "employmentType": "Employment",
+    "role": "Role",
+    "allTeachers": "All Instructors",
+    "allClasses": "All Classes",
+    "dayOfWeek": "Day of Week",
+    "startTime": "Start Time",
+    "endTime": "End Time",
+    "dayMon": "Monday",
+    "dayTue": "Tuesday",
+    "dayWed": "Wednesday",
+    "dayThu": "Thursday",
+    "dayFri": "Friday",
+    "daySat": "Saturday",
+    "daySun": "Sunday",
+    "conflictDetected": "Schedule conflict detected — cannot save overlapping slot:",
+    "scheduleSaved": "Class schedule slot saved with zero conflicts."
   },
   "common": {
     "status": "Status",

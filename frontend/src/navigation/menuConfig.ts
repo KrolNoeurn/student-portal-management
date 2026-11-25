@@ -97,8 +97,7 @@ export const PORTAL_NAVIGATION: NavSection[] = [
         path: '/teachers',
         i18nKey: 'nav.teachers',
         icon: Users,
-        permission: 'teachers.view_teacher',
-        phase: 7,
+        anyOf: ['teachers.view_teacher', 'teachers.view_classschedule'],
       },
       {
         id: 'attendance',
